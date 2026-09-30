@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offres Gratuit / Premium — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('offres.html'));</script>
+
+<main id="main-content">
+<section class="section-tight section-alt">
+  <div class="container section-head">
+    <div class="kicker">Modèle économique</div>
+    <h1>Gratuit ou Premium</h1>
+    <p>Dans ce prototype, toutes les fonctionnalités restent accessibles pour la démonstration. Voici comment un vrai lancement pourrait répartir le contenu.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid grid-2" style="max-width:820px;margin:0 auto;">
+    <div class="card">
+      <h3>Gratuit</h3>
+      <p style="font-size:1.8rem;font-family:var(--font-display);color:var(--primary);">0 FCFA</p>
+      <ul>
+        <li>Une sélection de cours de code de la route</li>
+        <li>Quiz limités par thème</li>
+        <li>2 examens blancs</li>
+        <li>Suivi de progression de base</li>
+      </ul>
+      <span class="badge badge-verified">Accessible dès l’inscription</span>
+    </div>
+    <div class="card card-flag">
+      <h3>Premium</h3>
+      <p style="font-size:1.8rem;font-family:var(--font-display);color:var(--primary);">À définir</p>
+      <ul>
+        <li>Tous les cours et toutes les vidéos</li>
+        <li>Examens blancs illimités</li>
+        <li>Statistiques avancées et parcours personnalisé</li>
+        <li>Accès à tous les simulateurs</li>
+      </ul>
+      <button class="btn btn-primary btn-block" id="upgradeBtn">Passer Premium</button>
+    </div>
+  </div>
+  <p class="source-note warn" style="max-width:820px;margin:20px auto 0;">Aucun paiement réel n’est intégré à ce prototype. Une mise en production nécessiterait un prestataire de paiement local sécurisé (ex. Orange Money, Wave, carte bancaire) et une configuration conforme aux exigences de sécurité et de conformité applicables au Sénégal.</p>
+</section>
+
+<script>
+document.getElementById('upgradeBtn').addEventListener('click', function(){
+  alert('Ceci est un prototype : aucun paiement réel n’est traité. Un vrai lancement nécessiterait un prestataire de paiement sécurisé.');
+});
+</script>
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

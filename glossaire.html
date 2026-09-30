@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glossaire — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('glossaire.html'));</script>
+
+<main id="main-content">
+<section class="section-tight section-alt">
+  <div class="container section-head left">
+    <div class="kicker">Ressource</div>
+    <h1>Glossaire de la conduite</h1>
+    <p>Recherche instantanée parmi les termes techniques du code de la route et de la conduite.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:920px;">
+    <div class="field" style="position:relative;max-width:460px;margin:0 auto 32px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:14px;top:14px;color:var(--text-soft);pointer-events:none;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="glossSearch" placeholder="Rechercher un terme (ex. embrayage, ABS, priorité…)" style="padding-left:42px;">
+    </div>
+    <p id="glossCount" class="center" style="color:var(--text-soft);font-size:.85rem;margin-bottom:18px;"></p>
+    <div class="grid grid-2" id="glossList"></div>
+  </div>
+</section>
+
+<script src="js/data.js"></script>
+<script>
+function renderGloss(filter){
+  var f = (filter||'').toLowerCase();
+  var list = GLOSSAIRE.filter(function(g){ return g.terme.toLowerCase().indexOf(f)>-1 || g.def.toLowerCase().indexOf(f)>-1; });
+  document.getElementById('glossCount').textContent = list.length + (list.length>1 ? ' termes trouvés' : ' terme trouvé');
+  document.getElementById('glossList').innerHTML = list.map(function(g){
+    return '<div class="card glossary-card">'+
+      '<div class="flex" style="align-items:center;gap:12px;margin-bottom:8px;">'+
+        '<span class="letter-avatar">'+g.terme.charAt(0)+'</span>'+
+        '<h3 style="margin:0;font-size:1.05rem;">'+g.terme+'</h3>'+
+      '</div>'+
+      '<p style="margin:0;">'+g.def+'</p>'+
+    '</div>';
+  }).join('') || '<p class="center" style="grid-column:1/-1;">Aucun terme ne correspond à ta recherche.</p>';
+}
+document.getElementById('glossSearch').addEventListener('input', function(e){ renderGloss(e.target.value); });
+renderGloss('');
+</script>
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

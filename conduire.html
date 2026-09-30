@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apprendre à conduire — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('conduire.html'));</script>
+
+<main id="main-content">
+<section class="section-tight section-alt">
+  <div class="container section-head left">
+    <div class="kicker">Parcours pratique</div>
+    <h1>Apprendre à conduire</h1>
+    <p>Un parcours pratique en 5 étapes : commandes, démarrage, embrayage, côte et vitesses. Travaille une notion à la fois puis valide-la.</p><div class="drive-safety-banner"><strong>Priorité sécurité</strong><span>Ces exercices simulent l’apprentissage. La pratique réelle doit se faire avec un enseignant qualifié, dans un lieu adapté.</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="learning-roadmap" aria-label="Progression du parcours"><span class="roadmap-dot active">1</span><span>Découvrir</span><i></i><span class="roadmap-dot">2</span><span>Démarrer</span><i></i><span class="roadmap-dot">3</span><span>Embrayage</span><i></i><span class="roadmap-dot">4</span><span>Côte</span><i></i><span class="roadmap-dot">5</span><span>Vitesses</span></div>
+    <div class="tabs" id="drivingTabs" role="tablist" aria-label="Étapes pour apprendre à conduire">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-t="vehicule">1. Découvrir la voiture</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-t="demarrer">2. Démarrer</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-t="caler">3. Éviter de caler</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-t="cote">4. Démarrage en côte</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-t="vitesses">5. Changement de vitesses</button>
+    </div>
+
+    <!-- 1. VEHICULE -->
+    <div class="drv-panel" id="panel-vehicule">
+      <div class="grid grid-2" style="align-items:center;">
+        <svg viewBox="0 0 400 260" style="background:var(--surface-2);border-radius:8px;">
+          <rect x="40" y="60" width="320" height="140" rx="16" fill="#DFDAC7"/>
+          <g class="carpart" data-part="volant" style="cursor:pointer;"><circle cx="120" cy="130" r="30" fill="none" stroke="#10332B" stroke-width="8"/><circle cx="120" cy="130" r="6" fill="#10332B"/></g>
+          <g class="carpart" data-part="tableau" style="cursor:pointer;"><rect x="170" y="90" width="70" height="30" rx="4" fill="#256A59"/></g>
+          <g class="carpart" data-part="levier" style="cursor:pointer;"><rect x="150" y="150" width="10" height="34" fill="#16201C"/><circle cx="155" cy="150" r="8" fill="#E0A639"/></g>
+          <g class="carpart" data-part="retro" style="cursor:pointer;"><rect x="255" y="70" width="26" height="10" rx="3" fill="#2E7DA6"/></g>
+          <g class="carpart" data-part="clignotant" style="cursor:pointer;"><rect x="90" y="105" width="8" height="18" rx="2" fill="#E0A639"/></g>
+          <g class="carpart" data-part="essuie" style="cursor:pointer;"><line x1="200" y1="66" x2="230" y2="80" stroke="#16201C" stroke-width="4"/></g>
+          <g class="carpart" data-part="frein" style="cursor:pointer;"><rect x="290" y="150" width="10" height="34" fill="#9E3823"/></g>
+          <text x="200" y="230" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" fill="var(--text-soft)">Clique sur un élément pour l’explication</text>
+        </svg>
+        <div class="card" id="partInfo">
+          <h3>Clique sur un élément de la voiture</h3>
+          <p>Chaque commande a un rôle précis. Explore le schéma pour découvrir volant, embrayage, frein, accélérateur, levier de vitesse, frein à main, clignotants, feux, essuie-glaces, rétroviseurs et tableau de bord.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. DEMARRER -->
+    <div class="drv-panel" id="panel-demarrer" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Les 11 étapes pour démarrer en toute sécurité</h3>
+          <ol class="steps">
+            <li>S’installer confortablement au volant</li>
+            <li>Régler le siège</li>
+            <li>Régler les rétroviseurs</li>
+            <li>Mettre la ceinture de sécurité</li>
+            <li>Vérifier que le frein à main est serré</li>
+            <li>Démarrer le moteur</li>
+            <li>Enfoncer complètement l’embrayage</li>
+            <li>Sélectionner la première vitesse</li>
+            <li>Trouver le point de patinage</li>
+            <li>Accélérer très progressivement</li>
+            <li>Relâcher progressivement l’embrayage</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>Les trois pédales</h3>
+          <p>Clique sur chaque pédale pour voir quel pied intervient et à quel moment.</p>
+          <div class="pedal-board">
+            <div class="pedal embrayage" data-p="embrayage">EMBRAYAGE</div>
+            <div class="pedal frein" data-p="frein">FREIN</div>
+            <div class="pedal accelerateur" data-p="accelerateur">ACCÉL.</div>
+          </div>
+          <p id="pedalInfo" style="min-height:44px;">Embrayage et frein s’actionnent avec le pied gauche pour l’embrayage, et le pied droit alterne entre frein et accélérateur.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. CALER -->
+    <div class="drv-panel" id="panel-caler" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Comment éviter de caler</h3>
+          <p>Le calage survient le plus souvent quand l’embrayage est relâché trop vite par rapport à l’accélération donnée.</p>
+          <ul>
+            <li><strong>Point de patinage :</strong> position où l’embrayage commence à transmettre la puissance — s’entraîner à le sentir à l’arrêt, frein serré.</li>
+            <li><strong>Démarrage à plat :</strong> relâcher lentement l’embrayage en accélérant très légèrement.</li>
+            <li><strong>Circulation lente / embouteillage :</strong> rester au point de patinage sans accélérer, en freinant légèrement si besoin.</li>
+            <li><strong>Redémarrage après un arrêt :</strong> revérifier le point de patinage avant de relâcher complètement l’embrayage.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Exercice : trouve le point de patinage</h3>
+          <p>Fais glisser le curseur lentement vers la droite pour simuler le relâchement de l’embrayage. Trouve la zone verte sans caler ni accélérer trop vite.</p>
+          <input type="range" min="0" max="100" value="0" id="clutchSlider" style="width:100%;">
+          <p id="clutchResult" style="margin-top:12px;font-weight:600;">Relâche doucement…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. COTE -->
+    <div class="drv-panel" id="panel-cote" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Démarrage en côte, étape par étape</h3>
+          <ol class="steps">
+            <li>Frein à main serré, pied droit sur le frein</li>
+            <li>Passer la première vitesse</li>
+            <li>Enfoncer l’embrayage puis trouver le point de patinage</li>
+            <li>Accélérer très légèrement</li>
+            <li>Relâcher le frein à main progressivement</li>
+            <li>Relâcher l’embrayage tout en accélérant pour avancer sans reculer</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>Simulation guidée</h3>
+          <p>Clique sur chaque action dans le bon ordre.</p>
+          <div id="hillSteps" class="chip-row"></div>
+          <p id="hillFeedback" style="margin-top:14px;font-weight:600;"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. VITESSES -->
+    <div class="drv-panel" id="panel-vitesses" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card center">
+          <h3>Schéma du levier de vitesses</h3>
+          <svg viewBox="0 0 200 160" style="width:220px;margin:0 auto;">
+            <rect x="10" y="10" width="180" height="140" rx="10" fill="var(--surface-2)"/>
+            <line x1="55" y1="20" x2="55" y2="140" stroke="var(--border)" stroke-width="2"/>
+            <line x1="100" y1="20" x2="100" y2="140" stroke="var(--border)" stroke-width="2"/>
+            <line x1="145" y1="20" x2="145" y2="140" stroke="var(--border)" stroke-width="2"/>
+            <text x="55" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="var(--primary)">1</text>
+            <text x="100" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="var(--primary)">3</text>
+            <text x="145" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="var(--primary)">5</text>
+            <text x="55" y="130" text-anchor="middle" font-size="14" font-weight="700" fill="var(--primary)">2</text>
+            <text x="100" y="130" text-anchor="middle" font-size="14" font-weight="700" fill="var(--primary)">4</text>
+            <text x="145" y="130" text-anchor="middle" font-size="14" font-weight="700" fill="var(--clay-600, #C0472F)">R</text>
+          </svg>
+        </div>
+        <div class="card">
+          <h3>Quel rapport choisir ?</h3>
+          <p>Le rapport approprié dépend notamment de la vitesse du véhicule, du régime moteur, de la pente et de la situation de circulation — il n’existe pas de vitesse fixe universelle pour « la première » ou « la troisième ».</p>
+          <ul>
+            <li>Régime moteur qui monte fort → passer au rapport supérieur</li>
+            <li>Régime moteur qui faiblit ou véhicule qui « broute » → rétrograder</li>
+            <li>Montée raide ou charge lourde → rapport plus court</li>
+            <li>Marche arrière → toujours à l’arrêt complet</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById('drivingTabs').addEventListener('click', function(e){
+  var b = e.target.closest('.tab-btn'); if(!b) return;
+  document.querySelectorAll('#drivingTabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  b.classList.add('active');
+  document.querySelectorAll('#drivingTabs .tab-btn').forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false');});
+  document.querySelectorAll('.roadmap-dot').forEach(function(x,i){x.classList.toggle('active',i===Array.from(document.querySelectorAll('#drivingTabs .tab-btn')).indexOf(b));});
+  document.querySelectorAll('.drv-panel').forEach(function(p){p.style.display='none';});
+  document.getElementById('panel-'+b.dataset.t).style.display='block';
+  if(window.SPProgress) SPProgress.markLessonSeen('conduite:'+b.dataset.t);
+});
+
+var PARTS = {
+  volant:'Le volant dirige les roues avant. Tenir à 9h15 ou 10h10, mains souples.',
+  tableau:'Le tableau de bord affiche vitesse, régime moteur, niveau de carburant et voyants d’alerte.',
+  levier:'Le levier de vitesse permet de choisir le rapport adapté à l’allure et à la situation.',
+  retro:'Les rétroviseurs permettent de surveiller l’environnement arrière et les angles latéraux.',
+  clignotant:'Les clignotants signalent une intention de changement de direction ou de voie.',
+  essuie:'Les essuie-glaces dégagent le pare-brise en cas de pluie ou de poussière.',
+  frein:'La pédale de frein ralentit ou immobilise le véhicule, actionnée du pied droit.'
+};
+document.querySelectorAll('.carpart').forEach(function(el){
+  el.addEventListener('click', function(){
+    var key = el.dataset.part;
+    document.getElementById('partInfo').innerHTML = '<h3>'+key.charAt(0).toUpperCase()+key.slice(1)+'</h3><p>'+(PARTS[key]||'Élément du véhicule.')+'</p>';
+  });
+});
+
+document.querySelectorAll('.pedal').forEach(function(p){
+  p.addEventListener('click', function(){
+    document.querySelectorAll('.pedal').forEach(function(x){x.classList.remove('active');});
+    p.classList.add('active');
+    var msgs = {
+      embrayage:'Pied GAUCHE — enfoncé pour changer de vitesse ou éviter de caler, relâché progressivement au démarrage.',
+      frein:'Pied DROIT — pour ralentir ou immobiliser le véhicule.',
+      accelerateur:'Pied DROIT — pour accélérer, jamais en même temps que le frein.'
+    };
+    document.getElementById('pedalInfo').textContent = msgs[p.dataset.p];
+  });
+});
+
+var slider = document.getElementById('clutchSlider');
+if(slider){
+  slider.addEventListener('input', function(){
+    var v = +slider.value;
+    var msg = v < 25 ? 'Embrayage encore bien enfoncé — rien ne se passe.' :
+      v < 45 ? 'Attention, tu approches du point de patinage…' :
+      v < 65 ? '🟢 Point de patinage ! Le véhicule commence à avancer doucement.' :
+      v < 85 ? 'Le véhicule avance — continue à relâcher en douceur.' :
+      '⚠️ Embrayage totalement relâché trop vite : risque de calage si l’accélérateur ne suit pas.';
+    document.getElementById('clutchResult').textContent = msg;
+  });
+}
+
+var hillOrder = ['Frein serré','1ère vitesse','Point de patinage','Léger accélérateur','Relâcher le frein à main'];
+var hillClicked = [];
+function renderHill(){
+  document.getElementById('hillSteps').innerHTML = hillOrder.map(function(s,i){
+    var done = hillClicked.indexOf(i) > -1;
+    return '<button class="tab-btn'+(done?' active':'')+'" data-i="'+i+'" '+(done?'disabled':'')+'>'+s+'</button>';
+  }).join('');
+}
+renderHill();
+document.getElementById('hillSteps').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  var i = +b.dataset.i;
+  if(i === hillClicked.length){
+    hillClicked.push(i);
+    renderHill();
+    if(hillClicked.length === hillOrder.length){
+      document.getElementById('hillFeedback').textContent = '✅ Bien joué, la voiture démarre sans reculer !';
+      if(window.SPProgress) SPProgress.markLessonSeen('conduite:cote-reussi');
+    }
+  } else {
+    document.getElementById('hillFeedback').textContent = '❌ Pas encore — respecte l’ordre des étapes.';
+  }
+});
+</script>
+<script src="js/progress.js"></script>
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

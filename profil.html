@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon compte — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('profil.html'));</script>
+
+<main id="main-content">
+<section class="section">
+  <div class="container">
+    <div class="tabs center" style="justify-content:center;" id="authTabs">
+      <button class="tab-btn active" data-t="login">Connexion</button>
+      <button class="tab-btn" data-t="signup">Inscription</button>
+    </div>
+
+    <div id="pane-login" class="auth-card">
+      <h3>Se connecter</h3>
+      <p class="source-note warn">Démonstration : aucune authentification réelle n’est effectuée tant que le backend n’est pas branché.</p>
+      <form onsubmit="event.preventDefault(); alert('Ceci est un prototype : la connexion réelle nécessite un backend.');">
+        <div class="field"><label>Adresse e-mail</label><input type="email" required placeholder="toi@exemple.com"></div>
+        <div class="field"><label>Mot de passe</label><input type="password" required placeholder="••••••••"></div>
+        <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+      </form>
+    </div>
+
+    <div id="pane-signup" class="auth-card" style="display:none;">
+      <h3>Créer un compte</h3>
+      <form onsubmit="event.preventDefault(); alert('Ceci est un prototype : la création de compte réelle nécessite un backend.');">
+        <div class="field"><label>Nom complet</label><input required placeholder="Ex. Awa Ndiaye"></div>
+        <div class="field"><label>Adresse e-mail</label><input type="email" required></div>
+        <div class="field"><label>Objectif de permis</label>
+          <select><option>Voiture (B)</option><option>Moto (A)</option><option>Poids lourd (C)</option><option>Transport en commun (D)</option></select>
+        </div>
+        <div class="field"><label>Mot de passe</label><input type="password" required></div>
+        <button class="btn btn-primary btn-block" type="submit">Créer mon compte</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head left"><h2>Aperçu de l’espace utilisateur (démonstration)</h2></div>
+    <div class="grid grid-4">
+      <div class="card"><h3>👤 Profil</h3><p>Informations personnelles, objectif de permis, langue préférée.</p></div>
+      <div class="card"><h3>📊 Progression</h3><p>Voir <a href="progression.html">Ma progression</a> pour le tableau réel basé sur ton activité locale.</p></div>
+      <div class="card"><h3>⭐ Favoris</h3><p>Panneaux, vidéos et fiches enregistrés pour révision rapide (à activer avec un compte réel).</p></div>
+      <div class="card"><h3>🕘 Historique</h3><p>Historique des quiz et examens — voir la page Progression.</p></div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById('authTabs').addEventListener('click', function(e){
+  var b = e.target.closest('.tab-btn'); if(!b) return;
+  document.querySelectorAll('#authTabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  b.classList.add('active');
+  document.getElementById('pane-login').style.display = b.dataset.t==='login' ? 'block':'none';
+  document.getElementById('pane-signup').style.display = b.dataset.t==='signup' ? 'block':'none';
+});
+</script>
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

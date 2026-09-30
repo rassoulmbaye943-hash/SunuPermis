@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code de la route sénégalais — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('code-route.html'));</script>
+
+<main id="main-content">
+<section class="section-tight section-alt">
+  <div class="container section-head left">
+    <div class="kicker">Bibliothèque de cours</div>
+    <h1>Code de la route sénégalais</h1>
+    <p>Une bibliothèque de <strong>176 panneaux uniques</strong> extraits directement du dernier PDF fourni, avec leur signification, le comportement attendu et une fiche pédagogique pour apprendre plus facilement.</p>
+    <p class="source-note warn" style="margin-top:16px;max-width:760px;">📘 <strong>Base de cette section :</strong> le PDF détaillé fourni pour SunuPermis. Les 181 pages ont été examinées et les 176 visuels uniques ont été conservés et les significations affichées dans le PDF sont reprises dans les fiches. La présence d’un panneau dans ce PDF ne constitue pas, à elle seule, une validation juridique.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="sign-overview" id="signOverview" aria-label="Répartition des panneaux">
+      <div class="sign-overview-card"><strong id="totalSigns">176</strong><span>panneaux uniques</span></div>
+      <div class="sign-overview-card"><strong id="dangerCount">0</strong><span>dangers</span></div>
+      <div class="sign-overview-card"><strong id="interdictionCount">0</strong><span>interdictions</span></div>
+      <div class="sign-overview-card"><strong id="obligationCount">0</strong><span>obligations</span></div>
+      <div class="sign-overview-card"><strong id="priorityCount">0</strong><span>priorités</span></div>
+      <div class="sign-overview-card"><strong id="indicationCount">0</strong><span>indications</span></div>
+      <div class="sign-overview-card"><strong id="parkingCount">0</strong><span>arrêt / stationnement</span></div>
+    </div>
+
+    <div class="sign-learning-tip">
+      <div class="sign-learning-icon">✓</div>
+      <div><strong>Méthode pour apprendre</strong><p><strong>1. Reconnais</strong> la forme et la famille du panneau. <strong>2. Lis</strong> la signification. <strong>3. Agis</strong> : demande-toi immédiatement ce que tu dois faire. <strong>4. Mémorise</strong> le détail qui change la règle (durée, direction, entrée/sortie, disque, distance ou véhicule concerné).</p></div>
+    </div>
+
+    <div class="sign-tools">
+      <label class="sign-search-label" for="signSearch">Rechercher un panneau</label>
+      <input id="signSearch" class="sign-search" type="search" placeholder="Ex. stop, virage, priorité…" autocomplete="off">
+      <span id="signCount" class="sign-count" aria-live="polite"></span>
+    </div>
+    <div class="flex-between" style="margin-bottom:10px;flex-wrap:wrap;gap:12px;">
+      <div class="tabs" id="catTabs" style="margin-bottom:0;">
+        <button class="tab-btn active" data-cat="tous">Tous</button>
+        <button class="tab-btn" data-cat="danger">Danger</button>
+        <button class="tab-btn" data-cat="interdiction">Interdiction</button>
+        <button class="tab-btn" data-cat="obligation">Obligation</button>
+        <button class="tab-btn" data-cat="priorite">Priorité</button>
+        <button class="tab-btn" data-cat="indication">Indication</button>
+        <button class="tab-btn" data-cat="stationnement">Arrêt / stationnement</button>
+      </div>
+      <a href="priorites.html" class="btn btn-outline btn-sm">🚦 Simulateur de priorités interactif</a>
+    </div>
+    <div class="grid grid-4" id="signGrid" aria-live="polite"></div>
+    <p class="source-note">Les 176 images affichées ici correspondent aux 172 visuels uniques retenus après suppression des doublons du PDF fourni. Les variantes de stationnement (payant, durée limitée, disque, 1 h 30, alternance, entrée/sortie) sont conservées lorsqu’elles diffèrent visuellement ou par leur signification. La signification affichée dans chaque fiche reprend le texte du PDF, avec de petites corrections typographiques pour faciliter la lecture. Les regroupements « danger », « interdiction », etc. servent à l’apprentissage dans SunuPermis.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head left">
+      <div class="kicker">Chapitre dédié</div>
+      <h2>Comprendre la circulation sénégalaise</h2>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Ce que le conducteur doit légalement faire</h3>
+        <ul>
+          <li>Respecter la signalisation, les priorités et les limitations affichées.</li>
+          <li>Céder le passage aux piétons engagés sur un passage protégé.</li>
+          <li>Adapter sa vitesse aux conditions de circulation, de visibilité et de chaussée.</li>
+          <li>Maintenir une distance de sécurité suffisante avec le véhicule qui précède.</li>
+        </ul>
+        <span class="badge badge-verified">Fondé sur la Loi n°2002-30 et son décret d’application</span>
+      </div>
+      <div class="card">
+        <h3>Ce que l’on observe parfois dans la circulation</h3>
+        <ul>
+          <li>Priorité prise « à la force » plutôt qu’attribuée par la règle.</li>
+          <li>Arrêts et dépassements de taxis collectifs (« clandos ») sans anticipation.</li>
+          <li>Deux-roues circulant entre les files ou à contresens sur de courtes distances.</li>
+          <li>Traversées de piétons ou d’animaux en dehors des zones prévues.</li>
+        </ul>
+        <span class="badge badge-accent">Comportements observés — non des règles à reproduire</span>
+      </div>
+    </div>
+    <p class="source-note">L’objectif de SunuPermis est d’enseigner la conduite sûre et conforme au code, pas de reproduire les habitudes parfois observées dans la circulation réelle — y compris lors de l’examen.</p>
+
+    <div class="divider"></div>
+
+    <div class="grid grid-3">
+      <div class="card"><h3>🌆 Circulation urbaine</h3><p>Trafic dense, arrêts fréquents, nombreux deux-roues et taxis. Anticiper large et limiter les changements de voie brusques.</p></div>
+      <div class="card"><h3>🛣️ Routes nationales et interurbaines</h3><p>Vitesses plus élevées, croisement de poids lourds et de charrettes. Garder ses distances et redoubler de prudence la nuit.</p></div>
+      <div class="card"><h3>🌧️ Pluie et visibilité réduite</h3><p>Chaussée glissante en début d’hivernage, poussière ou brouillard localisé. Réduire sa vitesse et allumer ses feux adaptés.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-backdrop" id="signModal" role="presentation">
+  <div class="modal" id="signModalContent" role="dialog" aria-modal="true" aria-labelledby="signModalTitle"></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/signs.js"></script>
+<script src="js/sign-learning.js"></script>
+<script>
+var currentCat = 'tous';
+var currentQuery = '';
+var lastFocusedTile = null;
+function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function updateSignStats(){
+  var counts={danger:0,interdiction:0,obligation:0,priorite:0,indication:0,stationnement:0};
+  PANNEAUX.forEach(function(p){if(counts[p.cat]!=null) counts[p.cat]++;});
+  document.getElementById('totalSigns').textContent=PANNEAUX.length;
+  document.getElementById('dangerCount').textContent=counts.danger;
+  document.getElementById('interdictionCount').textContent=counts.interdiction;
+  document.getElementById('obligationCount').textContent=counts.obligation;
+  document.getElementById('priorityCount').textContent=counts.priorite;
+  document.getElementById('indicationCount').textContent=counts.indication;
+  document.getElementById('parkingCount').textContent=counts.stationnement;
+}
+function stationDetails(p){ if(p.cat!=='stationnement') return ''; var s=(p.signif||'').toLowerCase(),d=[]; if(s.indexOf('entrée')!==-1)d.push('Entrée de zone'); if(s.indexOf('sortie')!==-1)d.push('Sortie de zone'); if(s.indexOf('payant')!==-1)d.push('Stationnement payant'); if(s.indexOf('durée limitée')!==-1)d.push('Durée limitée'); if(s.indexOf('1h30')!==-1)d.push('1 h 30'); if(s.indexOf('disque')!==-1)d.push('Contrôle par disque'); if(s.indexOf('zone bleue')!==-1)d.push('Zone bleue'); if(s.indexOf('alternance semi-mensuelle')!==-1)d.push('Alternance semi-mensuelle'); if(s.indexOf('stationnement interdit')!==-1)d.push('Stationnement interdit'); if(s.indexOf('arrêt et stationnement interdits')!==-1)d.push('Arrêt + stationnement interdits'); if(s.indexOf('du 16 au dernier jour')!==-1)d.push('Du 16 au dernier jour du mois'); if(s.indexOf('du 1er au 15')!==-1)d.push('Du 1er au 15 du mois'); return d.length?'<div class="sign-variant-tags"><strong>À observer :</strong>'+d.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':''; }
+function renderSigns(cat, query){
+  var grid = document.getElementById('signGrid');
+  currentCat = cat || currentCat; currentQuery = (query==null?currentQuery:query).trim().toLowerCase();
+  var list = currentCat === 'tous' ? PANNEAUX.slice() : PANNEAUX.filter(function(p){ return p.cat === currentCat; });
+  if(currentQuery) list = list.filter(function(p){ return [p.nom,p.code,p.cat,p.signif].join(' ').toLowerCase().indexOf(currentQuery)!==-1; });
+  document.getElementById('signCount').textContent = list.length+' panneau'+(list.length>1?'x':'')+' affiché'+(list.length>1?'s':'');
+  if(!list.length){ grid.innerHTML='<div class="empty-state">Aucun panneau ne correspond à cette recherche.</div>'; return; }
+  grid.innerHTML = list.map(function(p){
+    return '<div class="sign-tile" data-id="'+esc(p.id)+'" tabindex="0" role="button" aria-label="Ouvrir la fiche : '+esc(p.nom)+'">'+
+      '<div class="sign-image-wrap">'+spSignSVG(p,92)+'</div>'+'<div class="sign-code">'+esc(p.code||'')+'</div><div class="sign-name">'+esc(p.nom)+'</div>' +
+      stationDetails(p) + '<span class="badge badge-check" style="margin-top:8px;">Source PDF</span>' +
+    '</div>';
+  }).join('');
+}
+document.getElementById('catTabs').addEventListener('click', function(e){
+  var btn = e.target.closest('.tab-btn'); if(!btn) return;
+  document.querySelectorAll('#catTabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('signSearch').value='';
+  renderSigns(btn.getAttribute('data-cat'),'');
+});
+updateSignStats();
+renderSigns('tous');
+document.getElementById('signSearch').addEventListener('input', function(e){ renderSigns(currentCat,e.target.value); });
+
+function openSign(id){
+  var p = PANNEAUX.filter(function(x){return x.id===id;})[0];
+  if(!p) return;
+  var quizzes = [
+    {q:'Que dois-tu faire face à ce panneau : « '+p.nom+' » ?', good:p.comportement}
+  ];
+  document.getElementById('signModalContent').innerHTML =
+    '<button class="modal-close" id="closeSign">×</button>'+
+    '<div class="center" style="margin-bottom:10px;">'+spSignSVG(p,140)+'</div>'+stationDetails(p)+
+    '<div class="sign-modal-code">'+esc(p.code)+' · page '+esc(p.page)+'</div>'+
+    '<h3 class="center" id="signModalTitle">'+esc(p.nom)+'</h3>'+
+    '<div class="sign-detail-block"><strong>Signification dans le PDF</strong><p>'+esc(p.signif)+'</p></div>'+
+    '<div class="sign-detail-block sign-action-block"><strong>🚗 Comportement attendu</strong><p>'+esc(p.comportement)+'</p></div>'+
+    '<div class="sign-detail-block sign-memory-block"><strong>🧠 À retenir pour apprendre</strong><div class="sign-memory-grid"><div><span>1 · Reconnaître</span><p>'+esc(p.cat==='danger'?'Danger à anticiper.':p.cat==='interdiction'?'Action interdite.':p.cat==='obligation'?'Consigne obligatoire.':p.cat==='priorite'?'Règle de priorité.':p.cat==='stationnement'?'Règle de stationnement.':'Information à utiliser.')+'</p></div><div><span>2 · Agir</span><p>'+esc(p.comportement)+'</p></div><div><span>3 · Mémoriser</span><p>'+esc(p.retenir)+'</p></div></div></div>'+
+    '<div class="sign-detail-block"><strong>Source</strong><p>Signification reprise du PDF fourni, page '+esc(p.page)+'. Le regroupement par famille est pédagogique et ne remplace pas un texte réglementaire officiel.</p></div>'+
+    '<span class="badge badge-check">Source PDF · visuel extrait directement</span>';
+  document.getElementById('signModal').classList.add('open');
+  if(typeof SPProgress!=='undefined' && SPProgress.markLessonSeen) SPProgress.markLessonSeen('code:'+p.id);
+  var close=document.getElementById('closeSign'); if(close) close.focus();
+}
+document.getElementById('signGrid').addEventListener('click', function(e){
+  var tile = e.target.closest('.sign-tile'); if(tile){ lastFocusedTile=tile; openSign(tile.getAttribute('data-id')); }
+});
+document.getElementById('signGrid').addEventListener('keydown', function(e){
+  var tile=e.target.closest('.sign-tile'); if(tile && (e.key==='Enter'||e.key===' ')){e.preventDefault();lastFocusedTile=tile;openSign(tile.getAttribute('data-id'));}
+});
+document.addEventListener('click', function(e){
+  if(e.target.id==='closeSign' || e.target.id==='signModal') closeSign();
+});
+function closeSign(){ document.getElementById('signModal').classList.remove('open'); if(lastFocusedTile) lastFocusedTile.focus(); }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('signModal').classList.contains('open')) closeSign(); });
+</script>
+<script src="js/progress.js"></script>
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

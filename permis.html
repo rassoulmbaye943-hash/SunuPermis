@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choisir mon permis — SunuPermis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10332B">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('permis.html'));</script>
+
+<main id="main-content">
+<section class="section-tight section-alt">
+  <div class="container section-head left">
+    <div class="kicker">Étape 1</div>
+    <h1>Quel permis prépares-tu ?</h1>
+    <p>Choisis ta catégorie pour obtenir un parcours d’apprentissage adapté. Les intitulés ci-dessous suivent la nomenclature générale (A, B, C, D) évoquée par les sources publiques sénégalaises ; certains détails restent à confirmer.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid grid-4">
+    <div class="card" id="voiture">
+      <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 15.5l1.4-4.6A2 2 0 0 1 6.8 9.5h10.4a2 2 0 0 1 1.9 1.4l1.4 4.6"/><rect x="3" y="15" width="18" height="4.5" rx="1.3"/><circle cx="7" cy="19.6" r="1.4" fill="currentColor" stroke="none"/><circle cx="17" cy="19.6" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+      <h3>Permis voiture — Catégorie B</h3>
+      <p>Véhicules légers, poids total en charge ne dépassant pas 3 500 kg, jusqu’à 8 places assises hors conducteur.</p>
+      <span class="badge badge-check">Âge minimum généralement 18 ans</span>
+      <div style="margin-top:14px;">
+        <a href="code-route.html" class="btn btn-primary btn-sm btn-block">Commencer le code</a>
+      </div>
+    </div>
+    <div class="card" id="moto">
+      <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17" r="2.6"/><circle cx="18.5" cy="17" r="2.6"/><path d="M5.5 17l3-6h5l2 4h2.5M8.5 11l2-3h3"/></svg></div>
+      <h3>Permis moto — Catégorie A</h3>
+      <p>Deux-roues motorisés. Une distinction existe généralement entre motos légères et motos de plus grosse cylindrée.</p>
+      <span class="badge badge-accent">Détail à confirmer auprès d’une auto-école</span>
+      <div style="margin-top:14px;">
+        <a href="code-route.html" class="btn btn-primary btn-sm btn-block">Commencer le code</a>
+      </div>
+    </div>
+    <div class="card" id="poids-lourd">
+      <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8.5" width="10" height="8" rx="1"/><path d="M12.5 11.5h4l3 3v2h-7Z"/><circle cx="6" cy="18.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="16.5" cy="18.5" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+      <h3>Permis poids lourd — Catégorie C</h3>
+      <p>Véhicules dont le poids total en charge est supérieur à 3 500 kg et inférieur ou égal à 18 000 kg.</p>
+      <span class="badge badge-check">Âge minimum généralement 25 ans, permis léger requis au préalable</span>
+      <div style="margin-top:14px;">
+        <a href="code-route.html" class="btn btn-primary btn-sm btn-block">Commencer le code</a>
+      </div>
+    </div>
+    <div class="card" id="transport-commun">
+      <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="11.5" rx="2"/><path d="M3.5 11h17M7.5 5.5V17M16.5 5.5V17"/><circle cx="7" cy="19.6" r="1.4" fill="currentColor" stroke="none"/><circle cx="17" cy="19.6" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+      <h3>Transport en commun — Catégorie D</h3>
+      <p>Véhicules affectés au transport de personnes (bus, cars, transport collectif urbain et interurbain).</p>
+      <span class="badge badge-accent">Conditions précises à vérifier</span>
+      <div style="margin-top:14px;">
+        <a href="code-route.html" class="btn btn-primary btn-sm btn-block">Commencer le code</a>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <p class="source-note warn">Information à confirmer : les âges minimums et les catégories complémentaires (CE, DE, F, G pour véhicules agricoles ou de BTP) varient selon les textes consultés. Vérifie toujours ta situation auprès de la Direction des Transports Terrestres ou d’une auto-école agréée avant de t’inscrire à un examen.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>Chaque parcours suit la même logique</h2>
+    </div>
+    <ol class="steps">
+      <li><strong>Code de la route</strong> — signalisation, priorités, marquage, circulation sénégalaise.</li>
+      <li><strong>Conduite</strong> — prise en main du véhicule adapté à la catégorie choisie.</li>
+      <li><strong>Manœuvres</strong> — exercices spécifiques à la catégorie (créneau pour B, plateau pour A, etc.).</li>
+      <li><strong>Quiz et examens blancs</strong> — évaluation continue avant le passage de l’examen réel.</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+<script>document.write(spFooter());</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

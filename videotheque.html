@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vidéothèque — SunuPermis</title>
+<meta name="description" content="Vidéothèque SunuPermis : sécurité routière, panneaux, manœuvres et préparation à la conduite.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#10332B"><link rel="stylesheet" href="css/style.css">
+</head><body>
+<script src="js/layout.js"></script><script src="js/i18n.js"></script><script>document.write(spHeader('videotheque.html'));</script>
+<main id="main-content">
+<section class="section-tight section-alt">
+ <div class="container section-head left">
+  <div class="kicker">Vidéothèque</div><h1>Apprendre en regardant</h1>
+  <p>Des vidéos classées par objectif pour compléter les cours. Choisis un thème, recherche une vidéo et ouvre-la lorsque tu es prêt.</p>
+ </div>
+</section>
+<section class="section">
+ <div class="container">
+  <div class="video-toolbar card">
+   <div><strong>Ta vidéothèque</strong><p class="toolbar-help">Les vidéos sont lues directement dans SunuPermis grâce au lecteur intégré.</p></div>
+   <label class="video-search"><span class="sr-only">Rechercher une vidéo</span><input id="videoSearch" type="search" placeholder="Rechercher : créneau, panneaux, sécurité…" autocomplete="off"></label>
+  </div>
+  <div class="tabs" id="vidTabs" role="tablist" aria-label="Catégories de vidéos"></div>
+  <div class="video-feature" id="videoFeature"></div>
+  <div class="grid grid-3" id="vidGrid"></div>
+  <div class="empty-state card center" id="videoEmpty" hidden><h3>Aucune vidéo trouvée</h3><p>Essaie un autre mot-clé ou une autre catégorie.</p></div>
+ </div>
+</section>
+<script src="js/data.js?v=4"></script>
+<!-- Le lecteur est intégré à la page : aucun lien watch/YouTube n'est utilisé pour lancer une vidéo. -->
+<div class="video-modal" id="videoModal" hidden aria-hidden="true">
+ <div class="video-modal-backdrop" data-video-close></div>
+ <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
+  <div class="video-modal-head"><div><span class="kicker">Lecture intégrée</span><h2 id="videoModalTitle">Vidéo</h2></div><button class="video-modal-close" type="button" data-video-close aria-label="Fermer la vidéo">×</button></div>
+  <div class="video-player-wrap"><iframe id="videoFrame" title="Lecteur vidéo SunuPermis" src="about:blank" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  <p class="video-embed-note">La vidéo est chargée dans le lecteur intégré. Si son propriétaire interdit l'intégration, le lecteur peut afficher un message de restriction.</p>
+ </div>
+</div>
+<script>
+(function(){
+ 'use strict';
+ var activeCat='Toutes', search='';
+ var cats=['Toutes'].concat(VIDEOS.map(function(v){return v.cat;}).filter(function(v,i,a){return a.indexOf(v)===i;}));
+ var tabs=document.getElementById('vidTabs');
+ var modal=document.getElementById('videoModal');
+ var frame=document.getElementById('videoFrame');
+ var title=document.getElementById('videoModalTitle');
+ var lastTrigger=null;
+ function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function filtered(){return VIDEOS.filter(function(v){return (activeCat==='Toutes'||v.cat===activeCat)&&(!search||(v.titre+' '+v.desc+' '+v.cat+' '+v.chaine).toLowerCase().indexOf(search)>=0);});}
+ function playButton(v){
+   return '<button class="video-cover video-trigger" type="button" data-video="'+esc(v.youtube)+'" data-title="'+esc(v.titre)+'" aria-label="Lire '+esc(v.titre)+' dans SunuPermis">'+
+     '<img src="https://i.ytimg.com/vi/'+encodeURIComponent(v.youtube)+'/hqdefault.jpg" alt="Miniature de '+esc(v.titre)+'" loading="lazy" referrerpolicy="no-referrer">'+
+     '<span class="video-play" aria-hidden="true">▶</span><span class="video-duration">'+esc(v.duree||'')+'</span></button>';
+ }
+ function videoCard(v,featured){
+   return '<article class="video-card'+(featured?' featured-video-card':'')+'">'+playButton(v)+
+    '<div class="video-body"><div class="video-meta"><span class="badge badge-accent">'+esc(v.niveau)+'</span><span class="badge">'+esc(v.cat)+'</span></div>'+
+    '<h3>'+esc(v.titre)+'</h3><p>'+esc(v.desc)+'</p><p class="video-source">'+esc(v.chaine)+' · <button class="video-text-button" type="button" data-video="'+esc(v.youtube)+'" data-title="'+esc(v.titre)+'">▶ Lire sur SunuPermis</button></p></div></article>';
+ }
+ function render(){
+   var list=filtered(), feature=document.getElementById('videoFeature'), grid=document.getElementById('vidGrid'), empty=document.getElementById('videoEmpty');
+   empty.hidden=!!list.length;
+   if(!list.length){feature.innerHTML='';grid.innerHTML='';return;}
+   feature.innerHTML='<div class="video-feature-label">À regarder maintenant</div>'+videoCard(list[0],true);
+   grid.innerHTML=list.slice(1).map(function(v){return videoCard(v,false);}).join('');
+ }
+ function openVideo(id,t,trigger){
+   if(!id || !modal || !frame)return;
+   lastTrigger=trigger||document.activeElement;
+   title.textContent=t||'Vidéo';
+   frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?rel=0&playsinline=1';
+   modal.hidden=false; modal.setAttribute('aria-hidden','false'); document.body.classList.add('video-modal-open');
+   var close=modal.querySelector('.video-modal-close'); if(close) close.focus();
+ }
+ function closeVideo(){
+   if(!modal)return;
+   frame.src='about:blank'; modal.hidden=true; modal.setAttribute('aria-hidden','true'); document.body.classList.remove('video-modal-open');
+   if(lastTrigger&&typeof lastTrigger.focus==='function')lastTrigger.focus();
+ }
+ tabs.innerHTML=cats.map(function(c,i){return '<button class="tab-btn'+(i===0?' active':'')+'" role="tab" aria-selected="'+(i===0?'true':'false')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>';}).join('');
+ tabs.addEventListener('click',function(e){var b=e.target.closest('.tab-btn');if(!b)return;activeCat=b.dataset.c;tabs.querySelectorAll('.tab-btn').forEach(function(x){var on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',on?'true':'false');});render();});
+ document.getElementById('videoSearch').addEventListener('input',function(){search=this.value.trim().toLowerCase();render();});
+ document.addEventListener('click',function(e){
+   var trigger=e.target.closest('[data-video]');
+   if(trigger){e.preventDefault();openVideo(trigger.getAttribute('data-video'),trigger.getAttribute('data-title'),trigger);return;}
+   if(e.target.closest('[data-video-close]'))closeVideo();
+ });
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeVideo();});
+ render();
+})();
+</script>
+</main><script>document.write(spFooter());</script><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+</body></html>

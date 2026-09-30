@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Administration — SunuPermis</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#10332B" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script src="js/layout.js"></script>
+    <script src="js/i18n.js"></script>
+    <script>
+      document.write(spHeader("admin.html"));
+    </script>
+
+    <main id="main-content">
+      <section class="admin-layout">
+        <aside class="admin-side">
+          <a href="#" class="admin-link active" data-p="dashboard"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <rect x="3" y="3" width="8" height="8" rx="1.5" />
+              <rect x="13" y="3" width="8" height="5" rx="1.5" />
+              <rect x="13" y="10" width="8" height="11" rx="1.5" />
+              <rect x="3" y="13" width="8" height="8" rx="1.5" />
+            </svg>
+            Tableau de bord</a
+          >
+          <a href="#" class="admin-link" data-p="questions"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path
+                d="M9.5 9.2a2.5 2.5 0 0 1 4.7 1.1c0 1.7-2.2 1.9-2.2 3.5"
+                stroke-linecap="round"
+              />
+              <circle
+                cx="12"
+                cy="16.6"
+                r=".2"
+                fill="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+              />
+            </svg>
+            Questions du quiz</a
+          >
+          <a href="#" class="admin-link" data-p="panneaux"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2.5L21.5 12L12 21.5L2.5 12Z" />
+            </svg>
+            Panneaux</a
+          >
+          <a href="#" class="admin-link" data-p="videos"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            >
+              <rect x="2.5" y="5" width="14" height="14" rx="2" />
+              <path d="M16.5 10l5-3v10l-5-3Z" />
+            </svg>
+            Vidéos</a
+          >
+          <a href="#" class="admin-link" data-p="utilisateurs"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+            </svg>
+            Utilisateurs</a
+          >
+        </aside>
+        <div class="admin-main">
+          <div id="admin-dashboard">
+            <h2>Tableau de bord</h2>
+            <div class="grid grid-4">
+              <div class="stat-card">
+                <div
+                  class="card-icon"
+                  style="width: 34px; height: 34px; margin-bottom: 8px"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path
+                      d="M9.5 9.2a2.5 2.5 0 0 1 4.7 1.1c0 1.7-2.2 1.9-2.2 3.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <div class="stat-num" id="admQ">–</div>
+                <div class="stat-label">Questions en banque</div>
+              </div>
+              <div class="stat-card">
+                <div
+                  class="card-icon"
+                  style="width: 34px; height: 34px; margin-bottom: 8px"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 2.5L21.5 12L12 21.5L2.5 12Z" />
+                  </svg>
+                </div>
+                <div class="stat-num" id="admP">–</div>
+                <div class="stat-label">Panneaux référencés</div>
+              </div>
+              <div class="stat-card">
+                <div
+                  class="card-icon"
+                  style="width: 34px; height: 34px; margin-bottom: 8px"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="2.5" y="5" width="14" height="14" rx="2" />
+                    <path d="M16.5 10l5-3v10l-5-3Z" />
+                  </svg>
+                </div>
+                <div class="stat-num" id="admV">–</div>
+                <div class="stat-label">Emplacements vidéo</div>
+              </div>
+              <div class="stat-card">
+                <div
+                  class="card-icon"
+                  style="width: 34px; height: 34px; margin-bottom: 8px"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+                  </svg>
+                </div>
+                <div class="stat-num">0</div>
+                <div class="stat-label">Utilisateurs (démo)</div>
+              </div>
+            </div>
+            <p class="source-note warn" style="margin-top: 20px">
+              Cet espace est une maquette fonctionnelle en mémoire locale (les
+              ajouts ne sont pas persistés). Une vraie administration nécessite
+              un backend avec authentification et base de données.
+            </p>
+          </div>
+
+          <div id="admin-questions" style="display: none">
+            <div class="flex-between">
+              <h2>Questions du quiz</h2>
+              <button class="btn btn-primary btn-sm" id="addQBtn">
+                + Ajouter une question
+              </button>
+            </div>
+            <div
+              class="card"
+              id="addQForm"
+              style="display: none; margin-bottom: 20px"
+            >
+              <div class="grid grid-2">
+                <div class="field">
+                  <label>Catégorie</label
+                  ><input id="qCat" placeholder="ex. panneaux" />
+                </div>
+                <div class="field">
+                  <label>Difficulté</label
+                  ><select id="qDiff">
+                    <option>Facile</option>
+                    <option>Moyen</option>
+                    <option>Difficile</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Question</label
+                ><input id="qText" placeholder="Texte de la question" />
+              </div>
+              <div class="field">
+                <label>Réponses (séparées par ;)</label
+                ><input
+                  id="qReps"
+                  placeholder="Réponse A;Réponse B;Réponse C"
+                />
+              </div>
+              <div class="field">
+                <label>Index de la bonne réponse (0,1,2…)</label
+                ><input id="qCorrect" type="number" min="0" value="0" />
+              </div>
+              <div class="field">
+                <label>Explication</label
+                ><textarea id="qExp" rows="2"></textarea>
+              </div>
+              <div class="field">
+                <label>Source / référence</label
+                ><input
+                  id="qSource"
+                  placeholder="ex. Loi n°2002-30, à confirmer, etc."
+                />
+              </div>
+              <button class="btn btn-primary" id="saveQBtn">
+                Enregistrer (session en cours)
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Thème</th>
+                  <th>Question</th>
+                  <th>Vérifié</th>
+                </tr>
+              </thead>
+              <tbody id="qTableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="admin-panneaux" style="display: none">
+            <h2>Panneaux</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Catégorie</th>
+                  <th>Vérifié</th>
+                </tr>
+              </thead>
+              <tbody id="pTableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="admin-videos" style="display: none">
+            <h2>Vidéos</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Catégorie</th>
+                  <th>Durée</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="vTableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="admin-utilisateurs" style="display: none">
+            <h2>Utilisateurs</h2>
+            <p>
+              Aucun utilisateur réel n’est stocké dans ce prototype (pas de
+              backend / base de données connectée).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <script src="js/data.js"></script>
+      <script>
+        document.querySelectorAll(".admin-link").forEach(function (a) {
+          a.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelectorAll(".admin-link").forEach(function (x) {
+              x.classList.remove("active");
+            });
+            a.classList.add("active");
+            [
+              "dashboard",
+              "questions",
+              "panneaux",
+              "videos",
+              "utilisateurs",
+            ].forEach(function (p) {
+              document.getElementById("admin-" + p).style.display =
+                p === a.dataset.p ? "block" : "none";
+            });
+          });
+        });
+
+        document.getElementById("admQ").textContent = QUIZ_BANK.length;
+        document.getElementById("admP").textContent = PANNEAUX.length;
+        document.getElementById("admV").textContent = VIDEOS.length;
+
+        var localBank = QUIZ_BANK.slice();
+        function renderQTable() {
+          document.getElementById("qTableBody").innerHTML = localBank
+            .map(function (q) {
+              return (
+                "<tr><td>" +
+                q.theme +
+                "</td><td>" +
+                q.q +
+                "</td><td>" +
+                (q.verified
+                  ? '<span class="badge badge-verified">Oui</span>'
+                  : '<span class="badge badge-accent">À confirmer</span>') +
+                "</td></tr>"
+              );
+            })
+            .join("");
+        }
+        renderQTable();
+        document.getElementById("pTableBody").innerHTML = PANNEAUX.map(
+          function (p) {
+            return (
+              "<tr><td>" +
+              p.nom +
+              "</td><td>" +
+              p.cat +
+              "</td><td>" +
+              (p.verified
+                ? '<span class="badge badge-verified">Oui</span>'
+                : '<span class="badge badge-accent">À confirmer</span>') +
+              "</td></tr>"
+            );
+          },
+        ).join("");
+        document.getElementById("vTableBody").innerHTML = VIDEOS.map(
+          function (v) {
+            return (
+              "<tr><td>" +
+              v.titre +
+              "</td><td>" +
+              v.cat +
+              "</td><td>" +
+              v.duree +
+              '</td><td><span class="badge badge-accent">Emplacement vide</span></td></tr>'
+            );
+          },
+        ).join("");
+
+        document
+          .getElementById("addQBtn")
+          .addEventListener("click", function () {
+            var f = document.getElementById("addQForm");
+            f.style.display = f.style.display === "none" ? "block" : "none";
+          });
+        document
+          .getElementById("saveQBtn")
+          .addEventListener("click", function () {
+            var reps = document
+              .getElementById("qReps")
+              .value.split(";")
+              .map(function (s) {
+                return s.trim();
+              })
+              .filter(Boolean);
+            if (!document.getElementById("qText").value || reps.length < 2) {
+              alert(
+                "Merci de renseigner au moins la question et deux réponses.",
+              );
+              return;
+            }
+            localBank.unshift({
+              theme: document.getElementById("qCat").value || "divers",
+              q: document.getElementById("qText").value,
+              rep: reps,
+              correct: +document.getElementById("qCorrect").value || 0,
+              exp: document.getElementById("qExp").value,
+              verified: !!document.getElementById("qSource").value,
+              source: document.getElementById("qSource").value || null,
+            });
+            renderQTable();
+            document.getElementById("addQForm").style.display = "none";
+          });
+      </script>
+    </main>
+    <script>
+      document.write(spFooter());
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>

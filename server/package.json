@@ -1,0 +1,10 @@
+{
+  "name": "sunupermis-server-skeleton",
+  "version": "0.1.0",
+  "description": "Squelette de backend Node.js (sans dépendance) — point de départ pour brancher une vraie base de données et une authentification réelle à SunuPermis.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "UNLICENSED"
+}
