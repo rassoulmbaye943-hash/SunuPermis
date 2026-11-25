@@ -103,16 +103,15 @@
   }
 
   function logoutSync() {
-    var token = localStorage.getItem('sp_session');
-    if (token) {
-      api.deleteAccount(token).catch(function () { /* les données locales restent */ });
+    if (api && api.logout) {
+      api.logout().catch(function () { /* les données locales restent */ });
     }
     localStorage.removeItem('sp_session');
     localStorage.removeItem('sp_user');
   }
 
   // expose le sync comme _syncWithServer sur SPProgress (déjà attendu par progress.js)
-  if (typeof SPProgress !== "undefined") { SPProgress._syncWithServer = SPSync.sync; }
+  if (typeof SPProgress !== 'undefined') { SPProgress._syncWithServer = sync; }
 
   window.SPSync = {
     sync: sync,

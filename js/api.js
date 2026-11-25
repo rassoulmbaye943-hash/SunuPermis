@@ -21,11 +21,11 @@
   if (!cfg.base || cfg.base === '/') {
     // Détection : si le fichier est ouvert directement (file://), on cible le backend local.
     try {
-      if (location.protocol === 'file:') {
-        cfg.base = 'http://localhost:4000/';
+      if (location && location.protocol === 'file:') {
+        cfg.base = 'http://localhost:3000/';
         cfg.online = false; // on vérifie la disponibilité du serveur à distance
       }
-    } catch (e) { /* ignored */ }
+    } catch (e) { /* environnement sans location */ }
   }
 
   function log() { if (cfg.debug) console.log('[sp-api]', arguments); }
@@ -73,7 +73,7 @@
         }
         var data = null;
         try { data = JSON.parse(xhr.responseText || 'null'); } catch (e) { data = null; }
-        if (xhr.status === 401 && data && data.error) {
+        if (xhr.status === 401 && data && data.erreur) {
           // Session expirée : nettoyage côté client.
           try { localStorage.removeItem('sp_session'); localStorage.removeItem('sp_user'); } catch (e) {}
           dispatch('authchange', false);
@@ -82,7 +82,6 @@
       };
       xhr.onerror = function () { reject(new Error('réseau')); };
       xhr.ontimeout = function () { reject(new Error('temps dépassé')); };
-      if (opts.method === 'DELETE') { xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8'); }
       log(method, url, body);
       xhr.send(opts.body !== undefined ? opts.body : null);
     });
@@ -91,7 +90,8 @@
   function apiGet(url) { return req('GET', url); }
   function apiPost(url, body) { return req('POST', url, body); }
   function apiPut(url, body) { return req('PUT', url, body); }
-  function apiDelete(url) { return req('DELETE', url); }
+  function apiPatch(url, body) { return req('PATCH', url, body); }
+  function apiDelete(url, body) { return req('DELETE', url, body); }
 
   /* ------------------------- Session ------------------------- */
   var sessionToken = null;
@@ -121,7 +121,7 @@
   function login(email, password) {
     return apiPost('api/users/login', { email: email, password: password })
       .then(function (r) {
-        if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Erreur de connexion.');
+        if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Erreur de connexion.');
         saveSession(r.data.token, r.data.user);
         dispatch('authchange', true);
         return r.data.user;
@@ -131,7 +131,7 @@
   function register(name, email, password, objective) {
     return apiPost('api/users/register', { name: name, email: email, password: password, objective: objective })
       .then(function (r) {
-        if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Erreur lors de la création du compte.');
+        if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Erreur lors de la création du compte.');
         saveSession(r.data.token, r.data.user);
         dispatch('authchange', true);
         return r.data.user;
@@ -139,7 +139,7 @@
   }
 
   function logout() {
-    return apiDelete('api/me', { password: null })
+    return apiPost('api/users/logout', {})
       .catch(function () { /* on supprime quand même localement */ })
       .then(function () { clearSession(); dispatch('authchange', false); return true; });
   }
@@ -147,7 +147,7 @@
   function me() {
     return apiGet('api/me').then(function (r) {
       if (!r.ok) return null;
-      saveSession(r.data.user.token, r.data.user);
+      saveSession(sessionToken, r.data.user);
       return r.data.user;
     });
   }
@@ -162,23 +162,23 @@
 
   function saveProgress(progress) {
     return apiPut('api/progress', { progress: progress }).then(function (r) {
-      if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Synchronisation impossible.');
+      if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Synchronisation impossible.');
       return r.data.progress;
     });
   }
 
   function resetProgress() {
     return apiDelete('api/progress').then(function (r) {
-      if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Suppression impossible.');
+      if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Suppression impossible.');
       return true;
     });
   }
 
   /* ------------------------- Profil ------------------------- */
   function updateProfile(name, objective) {
-    return apiPut('api/me', { name: name, objective: objective }).then(function (r) {
-      if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Impossible de mettre à jour le profil.');
-      saveSession(r.data.user.token, r.data.user);
+    return apiPatch('api/me', { name: name, objective: objective }).then(function (r) {
+      if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Impossible de mettre à jour le profil.');
+      saveSession(sessionToken, r.data.user);
       return r.data.user;
     });
   }
@@ -186,14 +186,14 @@
   function changePassword(current, next) {
     return apiPost('api/me/password', { currentPassword: current, newPassword: next })
       .then(function (r) {
-        if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Impossible de changer le mot de passe.');
+        if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Impossible de changer le mot de passe.');
         return r.data.message;
       });
   }
 
   function deleteAccount(password) {
     return apiDelete('api/me', { password: password }).then(function (r) {
-      if (!r.ok) return Promise.reject(r.data && r.data.error ? r.data.error : 'Impossible de supprimer le compte.');
+      if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Impossible de supprimer le compte.');
       clearSession();
       dispatch('authchange', false);
       return true;

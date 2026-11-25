@@ -17,51 +17,6 @@
     'Combien coûte le permis ?'
   ];
 
-  /* ---------- Styles (design SunuPermis) ---------- */
-  const css = [
-    '.raoul-widget{position:fixed;z-index:1050;}',
-    '.raoul-toggle{position:fixed;bottom:22px;right:22px;display:flex;align-items:center;gap:9px;',
-    'background:var(--primary,#1c5245);color:#fff;border:none;border-radius:34px;',
-    'padding:9px 16px 9px 12px;box-shadow:var(--shadow-2,0 6px 20px rgba(16,51,43,.14));',
-    'cursor:pointer;font:600 14px var(--font-body,Inter,sans-serif);}',
-    '.raoul-toggle .raoul-toggle-icon{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;}',
-    '.raoul-panel{position:fixed;bottom:82px;right:22px;width:360px;height:560px;background:var(--surface,#fff);',
-    'color:var(--text,#16201c);border:1px solid var(--border,#dfdac7);border-radius:14px;',
-    'box-shadow:var(--shadow-2);display:flex;flex-direction:column;font-family:var(--font-body,Inter,sans-serif);}',
-    '.raoul-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--primary,#1c5245);color:#fff;border-radius:13px 13px 0 0;}',
-    '.raoul-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent,#e0a639);color:#10332b;',
-    'display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;}',
-    '.raoul-title{font-weight:700;font-size:15px;}',
-    '.raoul-sub{font-size:12px;opacity:.9;}',
-    '.raoul-close{background:transparent;border:none;color:#fff;opacity:.8;font-size:20px;cursor:pointer;margin-left:auto;padding:0;line-height:1;}',
-    '.raoul-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}',
-    '.raoul-msg{max-width:82%;padding:8px 12px;border-radius:12px;line-height:1.45;font-size:14px;}',
-    '.raoul-msg.user{align-self:flex-end;background:var(--primary,#1c5245);color:#fff;}',
-    '.raoul-msg.raoul{align-self:flex-start;background:var(--surface-2,#eae6d8);color:var(--text,#16201c);border:1px solid var(--border,#dfdac7);}',
-    '.raoul-msg p{margin:0;}',
-    '.raoul-typing{display:none;align-items:center;gap:6px;padding:8px 16px;font-size:13px;color:var(--text-soft,#46524b);}',
-    '.raoul-typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-soft,#46524b);animation:raoulBounce 1.4s infinite both;}',
-    '.raoul-typing span:nth-child(2){animation-delay:.2s;}.raoul-typing span:nth-child(3){animation-delay:.4s;}',
-    '@keyframes raoulBounce{0%,80%,100%{transform:scale(1);}40%{transform:scale(1.4);}}',
-    '.raoul-composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border,#dfdac7);background:var(--surface,#fff);border-radius:0 0 13px 13px;}',
-    '.raoul-composer input{flex:1;padding:10px 14px;border:1px solid var(--border,#dfdac7);border-radius:24px;background:var(--paper-100,#f3f1e8);color:var(--text,#16201c);font:inherit;outline:none;}',
-    '.raoul-composer input:focus{border-color:var(--primary,#1c5245);}',
-    '.raoul-send{background:var(--accent,#e0a639);color:#10332b;border:none;border-radius:24px;padding:0 18px;font:700 14px var(--font-body,Inter,sans-serif);cursor:pointer;}',
-    '.raoul-send:active{opacity:.9;}',
-    '.raoul-suggestions{display:flex;flex-direction:column;gap:8px;}',
-    '.raoul-suggestion{background:var(--surface-2,#eae6d8);border:1px solid var(--border,#dfdac7);color:var(--text-soft,#46524b);',
-    'border-radius:20px;padding:8px 14px;font-size:13.5px;cursor:pointer;text-align:left;}',
-    '.raoul-suggestion:hover{background:var(--paper-200,#eae6d8);color:var(--primary,#1c5245);}',
-    '[data-theme="dark"] .raoul-panel{background:var(--surface,#152019);border-color:var(--border,#28352d);color:var(--text,#ece9dd);}',
-    '[data-theme="dark"] .raoul-msg.raoul{background:#1b2820;border-color:var(--border,#28352d);color:var(--text,#ece9dd);}',
-    '[data-theme="dark"] .raoul-composer{background:var(--surface,#152019);}',
-    '[data-theme="dark"] .raoul-composer input{background:#1b2820;color:var(--text,#ece9dd);border-color:var(--border,#28352d);}',
-    '@media (max-width: 480px){.raoul-panel{left:12px;right:12px;width:auto;height:72vh;bottom:90px;}.raoul-toggle{bottom:14px;right:14px;padding:8px 14px;font-size:13px;}}'
-  ].join('');
-
-  var style = document.createElement('style');
-  style.textContent = css;
-  document.head.appendChild(style);
 
   /* ---------- HTML ---------- */
   var wrap = document.createElement('div');

@@ -13,7 +13,12 @@
 <script src="js/layout.js"></script>
 <script src="js/api.js"></script>
 <script src="js/i18n.js"></script>
-<script>document.write(spHeader('conseils-examen.html'));</script>
+<div id="sp-header-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        injectHeader("conseils-examen.html");
+      });
+    </script>
 
 <main id="main-content">
 <section class="section-tight section-alt">
@@ -64,7 +69,12 @@
 </section>
 
 </main>
-<script>document.write(spFooter());</script>
+<div id="sp-footer-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        injectFooter();
+      });
+    </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 <script src="js/raoul-chat.js"></script>
 </body>

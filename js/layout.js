@@ -1,4 +1,4 @@
-/* SunuPermis — en-tête et pied de page communs, injectés via document.write() */
+/* SunuPermis — en-tête et pied de page communs, injection DOM */
 function spHeader(active) {
   function link(href, label, key) {
     return (
@@ -26,7 +26,7 @@ function spHeader(active) {
       ],
     },
     {
-      label: "S’évaluer",
+      label: "S'évaluer",
       key: "nav_group_evaluer",
       items: [
         ["quiz.html", "Quiz", "nav_quiz"],
@@ -80,7 +80,7 @@ function spHeader(active) {
     '<div class="container">' +
     '<a href="index.html" class="brand">' +
     '<svg width="30" height="30" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" fill="#E0A639"/><path d="M12 24l4-10h8l4 10" stroke="#10332B" stroke-width="2.4" stroke-linejoin="round" fill="none"/><circle cx="15.5" cy="25.5" r="2.2" fill="#10332B"/><circle cx="24.5" cy="25.5" r="2.2" fill="#10332B"/></svg>' +
-    "<span>SunuPermis<small>Code &amp; conduite du Sénégal</small></span>" +
+    "<span>SunuPermis<small>Code & conduite du Sénégal</small></span>" +
     "</a>" +
     '<nav class="main-nav" id="mainNav">' +
     nav +
@@ -112,7 +112,7 @@ function spFooter() {
     "</div>" +
     '<p style="max-width:34ch;" data-i18n="footer_tagline">Apprends le code. Maîtrise la conduite. Décroche ton permis — une préparation pensée pour les réalités sénégalaises de la route.</p>' +
     '<div class="footer-cta">' +
-    "<p>Commence aujourd’hui, depuis ton téléphone.</p>" +
+    "<p>Commence aujourd'hui, depuis ton téléphone.</p>" +
     '<a href="permis.html" class="btn btn-primary btn-sm">Choisir mon permis</a>' +
     "</div>" +
     "</div>" +
@@ -122,11 +122,11 @@ function spFooter() {
     '<a href="manoeuvres.html">Manœuvres</a>' +
     '<a href="videotheque.html">Vidéothèque</a>' +
     "</div>" +
-    "<div><h4>S’évaluer</h4>" +
+    "<div><h4>S'évaluer</h4>" +
     '<a href="quiz.html">Quiz thématiques</a>' +
     '<a href="examen.html">Examen blanc</a>' +
     '<a href="progression.html">Ma progression</a>' +
-    '<a href="conseils-examen.html">Conseils pour l’examen</a>' +
+    '<a href="conseils-examen.html">Conseils pour l\'examen</a>' +
     "</div>" +
     "<div><h4>Ressources</h4>" +
     '<a href="glossaire.html">Glossaire</a>' +
@@ -137,12 +137,29 @@ function spFooter() {
     "</div>" +
     "</div>" +
     '<div class="footer-bottom">' +
-    "<span>© 2026 SunuPermis — prototype pédagogique, indépendant de l’administration sénégalaise.</span>" +
-    "<span>Les règles doivent être confirmées auprès de l’ANASER ou d’une auto-école agréée.</span>" +
+    "<span>© 2026 SunuPermis — prototype pédagogique, indépendant de l'administration sénégalaise.</span>" +
+    "<span>Les règles doivent être confirmées auprès de l'ANASER ou d'une auto-école agréée.</span>" +
     "</div>" +
     "</div>" +
     "</footer>" +
-    '<button type="button" class="back-to-top" id="backToTop" aria-label="Retour en haut de page">↑</button>' +
-    '<script src="js/main.js"><\/script>'
+    '<button type="button" class="back-to-top" id="backToTop" aria-label="Retour en haut de page">↑</button>'
   );
+}
+
+function injectHeader(active) {
+  var placeholder = document.getElementById('sp-header-placeholder');
+  if (placeholder) {
+    placeholder.outerHTML = spHeader(active);
+  }
+}
+
+function injectFooter() {
+  var placeholder = document.getElementById('sp-footer-placeholder');
+  if (placeholder) {
+    placeholder.outerHTML = spFooter();
+  }
+  // Add main.js after footer injection
+  var script = document.createElement('script');
+  script.src = 'js/main.js';
+  document.body.appendChild(script);
 }

@@ -12,7 +12,12 @@
 <body>
 <script src="js/layout.js"></script>
 <script src="js/i18n.js"></script>
-<script>document.write(spHeader('profil.html'));</script>
+<div id="sp-header-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        injectHeader("profil.html");
+      });
+    </script>
 
 <main id="main-content">
   <section class="section-tight section-alt">
@@ -95,7 +100,12 @@
           <form id="pwdForm" class="admin-form">
             <div class="field"><label for="pwdCurrent">Mot de passe actuel</label><input id="pwdCurrent" type="password" autocomplete="current-password"></div>
             <div class="field"><label for="pwdNew">Nouveau mot de passe (min. 8)</label><input id="pwdNew" type="password" minlength="8" autocomplete="new-password"></div>
-      <script>document.write(spFooter());</script>
+      <div id="sp-footer-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        injectFooter();
+      });
+    </script>
     <script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { }); }); }</script>
   <script src="js/raoul-chat.js"></script>
 </body>
@@ -361,7 +371,12 @@
         })();
       </script>
     <script src="js/api.js"></script>
-    <script>document.write(spFooter());</script>
+    <div id="sp-footer-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        injectFooter();
+      });
+    </script>
     <script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { }); }); }</script>
   <script src="js/raoul-chat.js"></script>
 </body>

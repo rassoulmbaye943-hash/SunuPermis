@@ -22,8 +22,11 @@
     <script src="js/layout.js"></script>
 <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
+    <div id="sp-header-placeholder"></div>
     <script>
-      document.write(spHeader("index.html"));
+      document.addEventListener("DOMContentLoaded", function() {
+        injectHeader("index.html");
+      });
     </script>
 
     <main id="main-content">
@@ -787,8 +790,11 @@
       </section>
     </main>
     <script src="js/progress.js"></script>
+    <div id="sp-footer-placeholder"></div>
     <script>
-      document.write(spFooter());
+      document.addEventListener("DOMContentLoaded", function() {
+        injectFooter();
+      });
     </script>
     <script>
       if ("serviceWorker" in navigator) {

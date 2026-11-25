@@ -139,7 +139,7 @@ class Repository {
   }
 
   deleteProgress(userId) {
-    delete this.data.progress[id];
+    delete this.data.progress[userId];
     this.save();
   }
 
