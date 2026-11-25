@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon compte — SunuPermis</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10332B">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/layout.js"></script>
+<script src="js/i18n.js"></script>
+<script>document.write(spHeader('profil.html'));</script>
+
+<main id="main-content">
+  <section class="section-tight section-alt">
+    <div class="container section-head left">
+      <div class="kicker">Espace personnel</div>
+      <h1>Mon compte</h1>
+      <p class="source-note">Connecte-toi ou crée un profil pour retrouver tes quiz, examens blancs et badges — et les synchroniser entre tes appareils.</p>
+    </div>
+  </section>
+
+  <!-- // Programme serveur -------- -->
+  <div id="serverStatus" class="server-status"><span class="dot"></span>Serveur accessible</div>
+
+  <section class="section">
+    <div class="container">
+      <div class="tabs center" style="justify-content:center;" id="authTabs">
+        <button class="tab-btn active" data-t="login">Connexion</button>
+        <button class="tab-btn" data-t="signup">Inscription</button>
+      </div>
+
+      <div id="pane-login" class="auth-card">
+        <h3>Se connecter</h3>
+        <p class="form-msg" id="loginMsg" role="alert"></p>
+        <form id="loginForm" novalidate>
+          <div class="field"><label for="loginEmail">Adresse e-mail</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="toi@exemple.com"></div>
+          <div class="field"><label for="loginPassword">Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••"></div>
+          <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Se connecter</button>
+        </form>
+      </div>
+
+      <div id="pane-signup" class="auth-card" style="display:none;">
+        <h3>Créer un compte</h3>
+        <p class="form-msg" id="signupMsg" role="alert"></p>
+        <form id="signupForm" novalidate>
+          <div class="field"><label for="signupName">Nom complet</label><input id="signupName" required placeholder="Ex. Awa Ndiaye"></div>
+          <div class="field"><label for="signupEmail">Adresse e-mail</label><input id="signupEmail" type="email" required autocomplete="email"></div>
+          <div class="field"><label>Objectif de permis</label>
+            <select id="signupObjective"><option>Voiture (B)</option><option>Moto (A)</option><option>Poids lourd (C)</option><option>Transport en commun (D)</option></select>
+          </div>
+          <div class="field"><label for="signupPassword">Mot de passe (min. 8 caractères)</label><input id="signupPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+          <button class="btn btn-primary btn-block" type="submit">Créer mon compte</button>
+        </form>
+      </div>
+
+      <!-- // Espace du compte -------- -->
+      <div id="pane-account" class="auth-card" style="display:none;">
+        <h3 id="accountHeader">Mon profil</h3>
+        <p class="form-msg" id="accountMsg" role="alert"></p>
+
+        <div class="grid grid-2" style="gap:16px;align-items:center;">
+          <div class="card" style="text-align:center;padding:24px;">
+            <div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:6px;" id="avatar">A</div>
+            <div style="font-weight:700;" id="profileName"></div>
+            <div style="font-size:.85rem;color:var(--text-soft);" id="profileEmail"></div>
+            <div style="font-size:.8rem;color:var(--text-soft);margin-top:4px;">Rôle : <span id="profileRole"></span></div>
+          </div>
+          <div class="card">
+            <h4>Objectif : <span id="profileObjective"></span></h4>
+            <h4>Inscrit le : <span id="profileCreated"></span></h4>
+            <form id="editForm" class="admin-form" style="margin-top:12px;">
+              <div class="field"><label for="editName">Nom complet</label><input id="editName" type="text"></div>
+              <div class="field"><label>Objectif de permis</label>
+                <select id="editObjective"><option>Voiture (B)</option><option>Moto (A)</option><option>Poids lourd (C)</option><option>Transport en commun (D)</option></select>
+              </div>
+              <button class="btn btn-primary btn-sm" type="submit">Mettre à jour</button>
+            </form>
+            <p class="source-note warn" style="margin-top:10px;font-size:.82rem;">
+              Vos statistiques (quiz, examens, badges, série de jours) sont envoyées
+              au compte et sont synchronisées automatiquement à chaque nouveau score.
+            </p>
+            <button class="btn btn-outline btn-sm btn--sync" id="syncBtn"><span class="sp-dot"></span>Sync pendante</button>
+            <p class="form-msg" id="syncStatus" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="divider" style="margin:24px 0;"></div>
+
+        <div class="card">
+          <h3 style="margin-top:0;">Changer de mot de passe</h3>
+          <form id="pwdForm" class="admin-form">
+            <div class="field"><label for="pwdCurrent">Mot de passe actuel</label><input id="pwdCurrent" type="password" autocomplete="current-password"></div>
+            <div class="field"><label for="pwdNew">Nouveau mot de passe (min. 8)</label><input id="pwdNew" type="password" minlength="8" autocomplete="new-password"></div>
+      <script>document.write(spFooter());</script>
+    <script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { }); }); }</script>
+  </body>
+</html>
+            <button class="btn btn-primary btn-sm" type="submit">Changer le mot de passe</button>
+            <p class="form-msg" id="pwdMsg" role="alert"></p>
+          </form>
+        </div>
+
+        <div class="card" style="border-color:#f0c4bc;">
+          <h3 style="color:#8f3a30;">Supprimer mon compte</h3>
+          <p class="source-note warn" style="font-size:.82rem;">Cette action est définitive. Les données de progression liées à ce compte seront supprimées.</p>
+          <form id="delForm" class="admin-form">
+            <div class="field"><label for="delPwd">Confirmer par le mot de passe</label><input id="delPwd" type="password" autocomplete="current-password"></div>
+            <button class="btn btn-block btn--sync" style="background:#b3261e;color:#fff;border:none;" type="submit">Supprimer définitivement</button>
+            <p class="form-msg" id="delMsg" role="alert"></p>
+          </form>
+        </div>
+
+        <div class="divider" style="margin:24px 0;"></div>
+
+        <div class="card">
+          <h3 style="margin-top:0;">Badges</h3>
+          <div class="chip-row" id="badgeRow"></div>
+          <h3 style="margin-top:24px;">Historique (scores, examens)</h3>
+          <table id="historyTable">
+            <thead><tr><th>Type</th><th>Score</th><th>Date</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+      <script>
+        (function () {
+          'use strict';
+          var api = window.__SP_API;
+          var el = function (id) { return document.getElementById(id); };
+          function $(s) { return document.querySelector(s); }
+
+          var loginForm = el('loginForm');
+          var signupForm = el('signupForm');
+          var accountPane = el('pane-account');
+          var loginMsg = el('loginMsg');
+          var signupMsg = el('signupMsg');
+          var statusEl = el('serverStatus');
+          var syncBtn = el('syncBtn');
+          var syncStatus = el('syncStatus');
+          var editForm = el('editForm');
+          var pwdForm = el('pwdForm');
+          var delForm = el('delForm');
+          var accountMsg = el('accountMsg');
+          var badgeRow = el('badgeRow');
+          var historyBody = el('historyBody');
+
+          var BADGE_LABELS = {
+            'premiers-pas': '🎯 Premiers pas',
+            'assidu': '📈 Assidu(e)',
+            'pret-pour-lexamen': '🏆 Prêt·e pour l’examen',
+            'serie-3-jours': '🔥 Série de 3 jours'
+          };
+
+          function updateStatus(online) {
+            if (!statusEl) return;
+            statusEl.className = 'server-status ' + (online ? 'online' : 'offline');
+            statusEl.innerHTML = '<span class="dot"></span>' + (online ? 'Base de données connectée' : 'Serveur inaccessible (démo hors ligne)');
+          }
+
+          function showMsg(msgEl, text, kind) {
+            if (!msgEl) return;
+            msgEl.textContent = text;
+            msgEl.className = 'form-msg ' + (kind || 'info') + ' show';
+          }
+
+          function hideMsg(msgEl) {
+            if (!msgEl) return;
+            msgEl.className = 'form-msg';
+          }
+
+          function setLoading(btn, on) {
+            if (!btn) return;
+            btn.disabled = on;
+            btn.classList.toggle('loading', on);
+          }
+
+          function initials(name) {
+            var parts = String(name || '').trim().split(/\s+/);
+            return (parts.length ? parts[0].charAt(0) : '?') + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '').toUpperCase();
+          }
+
+          // --- État courant + guard (hors ligne) ---
+          var guard = function (fn) {
+            return function () {
+              if (!api || !api.online()) {
+                showMsg(loginMsg && loginMsg !== signupMsg ? loginMsg : signupMsg, 'Le serveur n\'est pas joignable. Démarrez le backend (node server/server.js).', 'err');
+                return;
+              }
+              return fn.apply(this, arguments);
+            };
+          };
+
+          function renderProfile(user) {
+            el('avatar').textContent = initials(user.name);
+            el('profileName').textContent = user.name;
+            el('profileEmail').textContent = user.email;
+            el('profileObjective').textContent = user.objective;
+            el('profileRole').textContent = user.role === 'admin' ? 'Administrateur' : 'Utilisateur';
+            el('profileCreated').textContent = new Date(user.createdAt).toLocaleDateString('fr-FR');
+            if (accountPane) accountPane.style.display = 'block';
+            el('authTabs').style.display = 'none';
+          }
+
+          function loadHistory() {
+            var s = SPProgress.load();
+            var rows = [];
+            (s.examResults || []).slice(-8).forEach(function (r) {
+              rows.push('<tr><td>Examen</td><td>' + r.score + ' / ' + r.total + '</td><td>' + new Date(r.date).toLocaleDateString('fr-FR') + '</td></tr>');
+            });
+            (s.quizScores || []).slice(-8).forEach(function (q) {
+              rows.push('<tr><td>Quiz</td><td>' + q.score + ' / ' + q.total + '</td><td>' + new Date(q.date).toLocaleDateString('fr-FR') + '</td></tr>');
+            });
+            historyBody.innerHTML = rows.join('') || '<tr><td colspan="3" class="center" style="color:var(--text-soft);">Aucun résultat pour le moment.</td></tr>';
+          }
+
+          // --- Connexion ---
+          if (loginForm) {
+            loginForm.addEventListener('submit', function (e) {
+              e.preventDefault();
+              hideMsg(loginMsg);
+              var email = el('loginEmail').value.trim();
+              var password = el('loginPassword').value;
+              if (!email || !password) { showMsg(loginMsg, 'Merci de saisir e-mail et mot de passe.', 'info'); return; }
+              setLoading(el('loginBtn'), true);
+              api.login(email, password).then(function (user) {
+                showMsg(loginMsg, 'Bienvenue ' + user.name + ' · vous êtes connecté.', 'ok');
+                setTimeout(function () { location.href = 'progression.html'; }, 400);
+              }).catch(function (err) {
+                showMsg(loginMsg, err || 'E-mail ou mot de passe incorrect.', 'err');
+              }).finally(function () { setLoading(el('loginBtn'), false); });
+            });
+          }
+
+          // --- Inscription ---
+          if (signupForm) {
+            signupForm.addEventListener('submit', function (e) {
+              e.preventDefault();
+              hideMsg(signupMsg);
+              var name = el('signupName').value.trim();
+              var email = el('signupEmail').value.trim();
+              var objective = el('signupObjective').value;
+              var password = el('signupPassword').value;
+              if (!name) { showMsg(signupMsg, 'Le nom complet est requis.', 'info'); return; }
+              if (!email) { showMsg(signupMsg, 'L\'adresse e-mail est requise.', 'info'); return; }
+              if (password.length < 8) { showMsg(signupMsg, 'Le mot de passe doit contenir au moins 8 caractères.', 'info'); return; }
+              setLoading(el('signupBtn') || el('signupForm').querySelector('button[type="submit"]'), true);
+              api.register(name, email, password, objective).then(function (user) {
+                showMsg(signupMsg, 'Compte créé · bienvenue ' + user.name + '.', 'ok');
+                setTimeout(function () { location.href = 'progression.html'; }, 400);
+              }).catch(function (err) {
+                showMsg(signupMsg, err || 'Erreur lors de la création du compte.', 'err');
+              }).finally(function () {
+                var btns = el('signupForm') ? el('signupForm').querySelectorAll('button[type="submit"]') : [];
+                btns.forEach(function (b) { b.disabled = false; b.classList.remove('loading'); });
+              });
+            });
+          }
+
+          // --- Raccourci de navigation ---
+          $$('#authTabs .tab-btn').forEach(function (b) {
+            b.addEventListener('click', function () {
+              $$('#authTabs .tab-btn').forEach(function (x) { x.classList.remove('active'); });
+              b.classList.add('active');
+              var pane = el('pane-' + b.dataset.t);
+              ['pane-login', 'pane-signup', 'pane-account'].forEach(function (p) {
+                var other = el(p);
+                if (other && p !== 'pane-' + b.dataset.t) other.style.display = 'none';
+              });
+            });
+          });
+
+          // --- Compte ---
+          if (accountPane) {
+            api.me().then(renderProfile).catch(function () { /* session invalide */ });
+          }
+
+          if (editForm) {
+            editForm.addEventListener('submit', function (e) {
+              e.preventDefault();
+              var name = el('editName').value.trim();
+              var objective = el('editObjective').value;
+              if (!name) { showMsg(accountMsg, 'Le nom complet est requis.', 'info'); return; }
+              setLoading(editForm.querySelector('button[type="submit"]'), true);
+              api.updateProfile(name, objective).then(renderProfile).catch(function (err) {
+                showMsg(accountMsg, err || 'Impossible de mettre à jour le profil.', 'err');
+              }).finally(function () { setLoading(editForm.querySelector('button[type="submit"]'), false); });
+            });
+          }
+
+          // --- Sync ---
+          if (syncBtn) {
+            syncBtn.addEventListener('click', function () {
+              if (!api || !api.online()) { showMsg(syncStatus, 'Serveur inaccessible.', 'err'); return; }
+              setLoading(syncBtn, true);
+              SPSync.sync().then(function () {
+                showMsg(syncStatus, 'Progression synchronisée avec le serveur.', 'ok');
+                loadHistory();
+              }).catch(function () {
+                showMsg(syncStatus, 'Synchronisation impossible (hors ligne).', 'err');
+              }).finally(function () { setLoading(syncBtn, false); });
+            });
+          }
+
+          // --- Mot de passe ---
+          if (pwdForm) {
+            pwdForm.addEventListener('submit', function (e) {
+              e.preventDefault();
+              hideMsg(pwdMsg);
+              var cur = el('pwdCurrent').value;
+              var next = el('pwdNew').value;
+              if (!cur || next.length < 8) { showMsg(pwdMsg, 'Saisissez le mot de passe actuel et un nouveau de 8 caractères minimum.', 'info'); return; }
+              setLoading(pwdForm.querySelector('button[type="submit"]'), true);
+              api.changePassword(cur, next).then(function () {
+                showMsg(pwdMsg, 'Mot de passe modifié.', 'ok');
+                el('pwdCurrent').value = '';
+                el('pwdNew').value = '';
+              }).catch(function (err) {
+                showMsg(pwdMsg, err || 'Mot de passe actuel incorrect.', 'err');
+              }).finally(function () { setLoading(pwdForm.querySelector('button[type="submit"]'), false); });
+            });
+          }
+
+          // --- Suppression ---
+          if (delForm) {
+            delForm.addEventListener('submit', function (e) {
+              e.preventDefault();
+              hideMsg(delMsg);
+              var pwd = el('delPwd').value;
+              if (!pwd) { showMsg(delMsg, 'Confirmez par le mot de passe.', 'info'); return; }
+              setLoading(delForm.querySelector('button[type="submit"]'), true);
+              api.deleteAccount(pwd).then(function () {
+                showMsg(delMsg, 'Compte supprimé. Déconnexion dans 5 secondes…', 'ok');
+                setTimeout(function () { location.href = 'index.html'; }, 500);
+              }).catch(function (err) {
+                showMsg(delMsg, err || 'Mot de passe incorrect ou compte introuvable.', 'err');
+              }).finally(function () { setLoading(delForm.querySelector('button[type="submit"]'), false); });
+            });
+          }
+
+          // --- Badges + historiques (mêmes sources que progression.html) ---
+          function renderBadges() {
+            var s = SPProgress.load();
+            badgeRow.innerHTML = s.badges.length
+              ? s.badges.map(function (b) { return '<span class="badge badge-verified">' + (BADGE_LABELS[b] || b) + '</span>'; }).join('')
+              : '<span class="badge">Aucun badge pour le moment — termine un quiz !</span>';
+          }
+          if (badgeRow) renderBadges();
+          if (historyBody) loadHistory();
+
+          // --- Serveur en ligne/offline en temps réel ---
+          api.on('onlinechange', updateStatus);
+          updateStatus(api.online());
+        })();
+      </script>
+    <script src="js/api.js"></script>
+    <script>document.write(spFooter());</script>
+    <script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { }); }); }</script>
+  </body>
+</html>

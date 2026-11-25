@@ -1,0 +1,27 @@
+# Dépendances et builds
+node_modules/
+dist/
+build/
+coverage/
+
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+
+# Données et journaux locaux
+server/data/db.json
+server/data/secret.key
+*.log
+npm-debug.log*
+
+# Système / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+.kilo/
+
+# Dépôts imbriqués
+**/.git/

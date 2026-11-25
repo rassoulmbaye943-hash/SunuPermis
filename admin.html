@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Administration — SunuPermis</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23E0A639'/%3E%3C/svg%3E"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#10332B" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script src="js/layout.js"></script>
+    <script src="js/i18n.js"></script>
+    <script>document.write(spHeader("admin.html"));</script>
+
+    <main id="main-content">
+      <!-- // ---------- Porte d'entrée administrateur ---------- -->
+      <section class="admin-gate" id="adminGate">
+        <h2>Espace d'administration</h2>
+        <p class="source-note">
+          Seuls les comptes inscrits dans la variable d'environnement
+          <strong>ADMIN_EMAILS</strong> du serveur (ex. <em>admin@exemple.com</em>)
+          ont accès à cet espace. La liste des comptes est récupérée en direct
+          depuis le serveur.
+        </p>
+        <form class="admin-form" id="adminLoginForm">
+          <div class="field">
+            <label for="adminEmail">E-mail administrateur</label>
+            <input type="email" id="adminEmail" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label for="adminPassword">Mot de passe</label>
+            <input type="password" id="adminPassword" autocomplete="current-password" required />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Se connecter à l'espace admin</button>
+        </form>
+        <p class="form-msg" id="adminLoginMsg" role="alert"></p>
+        <p class="source-note warn" style="margin-top:14px;">
+          En phase de démonstration, le serveur accepte tout compte dont l'e-mail
+          figure dans <code>ADMIN_EMAILS</code>. Ajoutez une autre adresse et
+          redémarrez le serveur pour en créer une nouvelle.
+        </p>
+      </section>
+
+      <!-- // ---------- Tableau de bord ---------- -->
+      <div id="admin-dashboard" style="display:none">
+        <div class="container section-head">
+          <div class="kicker">Espace administrateur</div>
+          <h1>Tableau de bord</h1>
+          <p class="source-note">
+            Toutes les données (questions, panneaux, vidéos, utilisateurs) sont
+            gérées par le serveur et persistantes sur disque.
+          </p>
+        </div>
+        <div class="grid grid-4" id="statsGrid"></div>
+        <div class="center" style="margin-top:20px;">
+          <button class="btn btn-primary btn-sm" id="addQBtn">+ Ajouter une question</button>
+        </div>
+      </div>
+
+      <!-- // ---------- Questions du quiz ---------- -->
+      <div id="admin-questions" style="display:none">
+        <div class="container section-head left" style="margin-bottom:16px;">
+          <h2>Questions du quiz</h2>
+          <p class="source-note">Ajoutées par l'administrateur. Les questions de la banque (vérifiées ou non) restent visibles, avec leur résolution.</p>
+        </div>
+        <div class="grid grid-2" style="gap:16px;">
+          <div class="card" style="padding:20px;">
+            <h3 style="margin-top:0;">Ajouter</h3>
+            <form id="addQForm" class="admin-form">
+              <div class="field">
+                <label for="qCat">Thème</label>
+                <select id="qCat">
+                  <option value="panneaux">Panneaux</option>
+                  <option value="priorites">Priorités</option>
+                  <option value="vitesse">Vitesse</option>
+                  <option value="securite">Sécurité</option>
+                  <option value="depassement">Dépassement</option>
+                  <option value="stationnement">Stationnement</option>
+                  <option value="feux">Feux et marquage</option>
+                  <option value="comportement">Comportement / permis</option>
+                  <option value="manoeuvres">Manœuvres</option>
+                  <option value="autoroute">Autoroute</option>
+                  <option value="divers">Divers</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="qText">Question</label>
+                <textarea id="qText" rows="2" required placeholder="Énoncé de la question"></textarea>
+              </div>
+              <div class="field">
+                <label>Réponses (séparées par ";")</label>
+                <input id="qReps" placeholder="Réponse A;Réponse B;Réponse C" />
+              </div>
+              <div class="field">
+                <label for="qCorrect">Index de la bonne réponse (0,1,2…)</label>
+                <input id="qCorrect" type="number" min="0" value="0" />
+              </div>
+              <div class="field">
+                <label for="qExp">Explication</label>
+                <textarea id="qExp" rows="2"></textarea>
+              </div>
+              <div class="field">
+                <label for="qSource">Source / référence</label>
+                <input id="qSource" placeholder="ex. Loi n°2002-30, à confirmer, etc." />
+              </div>
+              <div class="field" style="display:flex;gap:10px;align-items:center;">
+                <input id="qVerified" type="checkbox" />
+                <label for="qVerified" style="margin:0;font-weight:600;">Question vérifiée (règle officielle)</label>
+              </div>
+              <button class="btn btn-primary" type="submit" id="saveQBtn">Enregistrer (serveur)</button>
+              <button class="btn btn-outline" type="button" id="saveQLocalBtn">Enregistrer (démonstration)</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0;">Base de données</h3>
+            <table id="qTable">
+              <thead><tr><th>Thème</th><th>Question</th><th>Résolu</th><th>Publisher</th></tr></thead>
+              <tbody id="qTableBody"></tbody>
+            </table>
+            <div class="center" style="margin-top:10px;">
+              <span id="qStatus" class="server-status"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- // ---------- Utilisateurs ---------- -->
+      <div id="admin-utilisateurs" style="display:none">
+        <div class="container section-head left" style="margin-bottom:16px;">
+          <h2>Utilisateurs</h2>
+          <p class="source-note">Liste des comptes (rôles + activité).</p>
+        </div>
+        <div class="card">
+          <table id="userTable">
+            <thead><tr><th>E-mail</th><th>Rôle</th><th>Créé le</th><th>Quiz</th><th>Examens</th></tr></thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+          <div id="userStatus" class="server-status"></div>
+        </div>
+      </div>
+
+      <!-- // ---------- Panneaux & vidéos (lecture) ---------- -->
+      <div id="admin-panneaux" style="display:none">
+        <div class="container section-head left" style="margin-bottom:16px;">
+          <h2>Panneaux de signalisation</h2>
+          <p class="source-note">La bibliothèque de panneaux est extraite du PDF fourni (172+4 fiches uniques + doublons regroupés).</p>
+        </div>
+        <div class="grid grid-2" style="gap:16px;">
+          <div class="card">
+            <h3 style="margin-top:0;">Total : <span id="pCount">–</span> panneaux</h3>
+            <table id="pTable">
+              <thead><tr><th>Nom / code</th><th>Catégorie</th><th>Vérifié</th></tr></thead>
+              <tbody id="pTableBody"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0;">Total : <span id="vCount">–</span> vidéos</h3>
+            <table id="vTable">
+              <thead><tr><th>Titre</th><th>Catégorie</th><th>Durée</th></tr></thead>
+              <tbody id="vTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.admin-link').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            ['dashboard','questions','panneaux','videos','utilisateurs'].forEach(function (p) {
+              document.getElementById('admin-' + p).style.display = p === a.dataset.p ? 'block' : 'none';
+            });
+            document.querySelectorAll('.admin-link').forEach(function (x) { x.classList.remove('active'); });
+            a.classList.add('active');
+          });
+        });
+      });
+    </script>
+    <script src="js/api.js"></script>
+    <script>document.write(spFooter());</script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>

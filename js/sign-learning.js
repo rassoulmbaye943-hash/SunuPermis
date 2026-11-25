@@ -1,0 +1,156 @@
+/* SunuPermis — comportement attendu et mémos d'apprentissage
+   Les formulations ci-dessous sont des aides pédagogiques déduites de la
+   signification affichée dans le PDF fourni. Elles ne remplacent pas un texte réglementaire. */
+(function(){
+  function has(s, terms){ return terms.some(function(t){ return s.indexOf(t)!==-1; }); }
+  function behavior(p){
+    var s=(p.signif||p.nom||'').toLowerCase();
+
+    if(has(s,['sortie d\'autoroute'])) return 'Préparer la sortie, se placer sur la voie appropriée et suivre la direction indiquée sans manœuvre brusque.';
+    if(has(s,['entrée d\'autoroute'])) return 'Préparer l’insertion sur l’autoroute, accélérer de façon adaptée et s’insérer seulement lorsque la circulation le permet.';
+    if(has(s,['voie verte','aire piétonne','piste ou bande cyclable',"piste ou d'une bande cyclable"])) return s.indexOf('fin')===0 || s.indexOf('fin d')===0 ? 'Quitter la voie ou l’espace réservé et reprendre une circulation adaptée à la nouvelle situation.' : 'Respecter l’espace signalé et ne pas l’utiliser comme une voie ordinaire lorsqu’il est réservé à certains usagers.';
+    if(has(s,['sortie de tunnel'])) return 'Préparer la sortie du tunnel et adapter progressivement sa conduite aux conditions extérieures.';
+    if(has(s,['entrée d\'un tunnel'])) return 'Entrer avec prudence, ne pas faire demi-tour ni s’arrêter hors des emplacements prévus et allumer les feux exigés par le panneau.';
+    if(has(s,['route à accès réglementé'])) return s.indexOf('fin de')===0 ? 'Quitter la route à accès réglementé en suivant la signalisation.' : 'Respecter les conditions d’accès et la réglementation applicables à cette route.';
+    if(has(s,['paiement'])) return 'Se préparer à effectuer le paiement selon le moyen indiqué et suivre la file ou la voie correspondante.';
+    if(has(s,['péage'])) return 'Réduire l’allure, choisir la voie de péage adaptée et effectuer le paiement ou le passage selon l’indication.';
+    if(has(s,['créneau de dépassement','section de route à 3 voies','chaussées séparées'])) return 'Suivre les voies et le marquage indiqués, anticiper les changements de voie et effectuer tout dépassement uniquement dans les conditions autorisées.';
+    if(has(s,['réduction du nombre de voies'])) return 'Anticiper la réduction, contrôler les véhicules autour de soi et se rabattre progressivement dans la voie disponible.';
+    if(has(s,['rappel des limites de vitesse'])) return 'Vérifier sa vitesse et la maintenir dans la limite indiquée pour la section concernée.';
+    if(has(s,['voie de détresse'])) return 'Ne pas utiliser cette voie pour circuler normalement ; la réserver à la situation d’urgence prévue par la signalisation.';
+    if(has(s,['voie de droite est réservée'])) return 'Utiliser cette voie uniquement si l’on doit tourner à droite, conformément à la signalisation et au marquage.';
+    if(has(s,['conditions particulières de circulation'])) return 'Ralentir si nécessaire, observer la situation et suivre les indications ou restrictions associées à la voie.';
+    if(has(s,['surélévation','ralentisseur','dos-d’âne','cassis'])) return 'Réduire l’allure avant le ralentisseur et le franchir avec une vitesse adaptée, sans freinage brusque dessus.';
+    if(has(s,['voie de circulation en sens inverse est réservée aux autobus'])) return 'Ne pas emprunter la voie réservée aux autobus si l’on n’est pas autorisé à l’utiliser.';
+    if(has(s,['passage pour piétons'])) return 'Ralentir à l’approche, surveiller les piétons et leur laisser le passage lorsqu’ils traversent conformément à la situation.';
+    if(has(s,['impasse'])) return 'Anticiper qu’il n’y a pas de débouché pour les véhicules et choisir son itinéraire en conséquence.';
+    if(has(s,['sens unique'])) return 'Circuler uniquement dans le sens indiqué et ne pas entrer en sens inverse.';
+    if(has(s,['arrêt d\'autobus'])) return 'Identifier l’emplacement d’arrêt et ne pas l’utiliser comme une zone de stationnement ordinaire.';
+    if(has(s,['emplacement d\'arrêt d\'urgence'])) return 'N’utiliser cet emplacement qu’en cas d’urgence ou lorsque la situation le justifie.';
+    if(has(s,['vitesse conseillée'])) return s.indexOf('fin de')===0 ? 'Ne plus considérer la vitesse conseillée signalée auparavant comme la recommandation en vigueur.' : 'Adapter son allure autour de la vitesse conseillée tout en tenant compte des autres limitations et de la situation.';
+    if(has(s,['station de taxis'])) return 'Identifier l’emplacement réservé aux taxis et ne pas l’occuper comme un stationnement ordinaire.';
+    if(has(s,['risque d’incendie','attention au feu'])) return 'Ralentir, rester attentif au danger signalé et éviter toute action pouvant aggraver le risque indiqué.';
+    if(has(s,['stationnement payant'])) return s.indexOf('sortie de zone')===0 ? 'La zone de stationnement payant se termine ; appliquer la nouvelle signalisation rencontrée.' : 'Stationner uniquement dans les conditions prévues et effectuer le paiement demandé.';
+    if(has(s,['stationnement gratuit à durée limitée','zone bleue','contrôle par disque'])) return s.indexOf('sortie de zone')===0 ? 'La zone à durée limitée se termine ; suivre la nouvelle signalisation.' : 'Utiliser le disque ou le dispositif demandé et respecter strictement la durée maximale indiquée.';
+    if(has(s,['station d\'autopartage'])) return 'Utiliser l’emplacement conformément aux règles du service d’autopartage et ne pas l’occuper comme un stationnement ordinaire.';
+    if(has(s,['obligation d’allumage des feux'])) return s.indexOf('fin de')===0 ? 'L’obligation signalée prend fin ; adapter l’usage des feux aux autres règles et aux conditions de visibilité.' : 'Allumer les feux exigés par la signalisation et les maintenir pendant la zone concernée.';
+    if(has(s,['voie réservée aux véhicules des services réguliers'])) return s.indexOf('fin de')===0 ? 'La voie réservée prend fin ; reprendre la circulation selon le nouveau marquage.' : 'Ne pas emprunter la voie réservée sauf si l’on fait partie des véhicules autorisés.';
+    if(has(s,['vitesse minimale obligatoire'])) return s.indexOf('fin de')===0 ? 'La vitesse minimale signalée ne s’applique plus ; adapter son allure aux autres règles.' : 'Ne pas circuler en dessous de la vitesse minimale indiquée, sauf nécessité liée à la sécurité ou aux conditions de circulation.';
+    if(has(s,['chemin obligatoire pour cavaliers'])) return s.indexOf('fin de')===0 ? 'La voie obligatoire pour cavaliers prend fin.' : 'Pour l’usager concerné, emprunter le chemin indiqué et respecter les autres usagers.';
+    if(has(s,['chemin obligatoire pour piétons'])) return s.indexOf('fin de')===0 ? 'Le chemin obligatoire pour piétons prend fin.' : 'Emprunter le chemin indiqué lorsqu’il est obligatoire pour les piétons.';
+    if(has(s,['piste ou bande obligatoire pour les cycles','piste ou bande obligatoire pour cycles'])) return s.indexOf('fin de')===0 ? 'La piste ou bande obligatoire prend fin ; reprendre la circulation prévue par la nouvelle signalisation.' : 'Pour le cycliste concerné, emprunter la piste ou bande indiquée.';
+    if(has(s,['directions obligatoires','direction obligatoire'])) return 'Suivre uniquement l’une des directions indiquées à la prochaine intersection.';
+    if(has(s,['contournement obligatoire'])) return 'Passer du côté indiqué par la flèche et ne pas contourner l’obstacle par l’autre côté.';
+    if(has(s,['tourner à gauche avant le panneau'])) return 'Tourner à gauche avant d’atteindre le panneau, conformément à la direction imposée.';
+    if(has(s,['tourner à droite avant le panneau'])) return 'Tourner à droite avant d’atteindre le panneau, conformément à la direction imposée.';
+    if(has(s,['zone à stationnement unilatéral à alternance'])) return s.indexOf('sortie de zone')===0 ? 'La zone d’alternance se termine ; suivre les nouvelles règles de stationnement.' : 'Respecter le côté et la période de stationnement indiqués pour la zone et le dispositif de contrôle demandé.';
+    if(has(s,['stationnement interdit du 16 au dernier jour'])) return 'Ne pas stationner du 16 au dernier jour du mois dans la zone signalée.';
+    if(has(s,['stationnement interdit du 1er au 15'])) return 'Ne pas stationner du 1er au 15 du mois dans la zone signalée.';
+    if(has(s,['arrêt et stationnement interdits'])) return 'Ne pas s’arrêter ni stationner dans la zone concernée, sauf situation imposée par la sécurité ou les circonstances prévues.';
+    if(has(s,['fin d’interdiction de stationner'])) return 'L’interdiction de stationner prend fin ; vérifier les autres panneaux avant de stationner.';
+    if(s==='lieu aménagé pour le stationnement.') return 'Stationner uniquement dans l’emplacement aménagé et vérifier les éventuelles conditions complémentaires.';
+    if(has(s,['stationnement interdit'])) return s.indexOf('fin d’interdiction')===0 ? 'L’interdiction de stationner prend fin ; vérifier les autres panneaux avant de stationner.' : 'Ne pas stationner dans la zone concernée.';
+    if(has(s,['fin de toutes les interdictions'])) return 'Les interdictions précédemment signalées prennent fin ; vérifier les panneaux suivants et les autres règles applicables.';
+    if(has(s,['interdit aux troupeaux'])) return 'Ne pas faire circuler ou conduire un troupeau dans la zone interdite.';
+    if(has(s,['marchandises dangereuses'])) return 'Ne pas accéder à la zone avec un véhicule transportant des marchandises dangereuses.';
+    if(has(s,['marchandises explosives','facilement inflammables'])) return 'Ne pas accéder avec un véhicule transportant les marchandises explosives ou facilement inflammables visées.';
+    if(has(s,['polluer les eaux'])) return 'Ne pas accéder avec un véhicule transportant les marchandises susceptibles de polluer les eaux visées.';
+    if(has(s,['intervalle au moins égal à 70 mètres'])) return 'Maintenir entre les véhicules un intervalle d’au moins 70 mètres dans la zone concernée.';
+    if(has(s,['signaux sonores interdits'])) return 'Ne pas utiliser l’avertisseur sonore dans la zone où les signaux sonores sont interdits, sauf nécessité prévue pour la sécurité.';
+    if(has(s,['fin d\'interdiction de l\'usage de l\'avertisseur sonore'])) return 'L’interdiction signalée prend fin ; utiliser l’avertisseur uniquement lorsqu’il est nécessaire et autorisé.';
+    if(has(s,['zone à vitesse limitée à 30 km/h'])) return s.indexOf('sortie de')===0 ? 'La zone limitée à 30 km/h se termine ; appliquer la nouvelle limitation ou les autres règles rencontrées.' : 'Ne pas dépasser 30 km/h dans la zone signalée.';
+    if(has(s,['3 tonnes sur un essieu'])) return 'Ne pas accéder avec un véhicule dépassant 3 tonnes sur un essieu.';
+    if(has(s,['hauteur','3,5 mètres'])) return 'Ne pas accéder avec un véhicule dont la hauteur, chargement compris, dépasse 3,5 mètres.';
+    if(has(s,['5,5 tonnes'])) return 'Ne pas accéder avec un véhicule dont le poids indiqué dépasse 5,5 tonnes.';
+    if(has(s,['longueur est supérieure à 10 mètres'])) return 'Ne pas accéder avec un véhicule dont la longueur dépasse 10 mètres.';
+    if(has(s,['largeur','3,5 mètres'])) return 'Ne pas accéder avec un véhicule dont la largeur, chargement compris, dépasse 3,5 mètres.';
+    if(has(s,['motocyclettes'])) return 'Ne pas accéder avec une motocyclette ou motocyclette légère dans la zone interdite.';
+    if(has(s,['caravane','remorque de plus de 250 kg'])) return 'Ne pas accéder avec un véhicule tractant une caravane ou une remorque de plus de 250 kg.';
+    if(has(s,['transport en commun de personnes'])) return 'Ne pas accéder avec un véhicule de transport en commun de personnes dans la zone interdite.';
+    if(has(s,['cyclomoteurs'])) return 'Ne pas accéder avec un cyclomoteur dans la zone interdite.';
+    if(has(s,['voitures à bras'])) return 'Ne pas accéder avec une voiture à bras dans la zone interdite.';
+    if(has(s,['traction animale'])) return 'Ne pas accéder avec un véhicule à traction animale dans la zone interdite.';
+    if(has(s,['véhicules agricoles à moteur'])) return 'Ne pas accéder avec un véhicule agricole à moteur dans la zone interdite.';
+    if(has(s,['cyclistes'])) return 'Ne pas accéder à la zone à vélo lorsque l’accès des cyclistes est interdit.';
+    if(has(s,['piétons'])) return 'Ne pas entrer à pied dans la zone lorsque l’accès des piétons est interdit.';
+    if(has(s,['transport de marchandises'])) return 'Ne pas accéder avec un véhicule de transport de marchandises dans la zone interdite.';
+    if(has(s,['limitation de vitesse'])) return 'Ne pas dépasser la vitesse indiquée par le panneau et adapter son allure aux conditions de circulation.';
+    if(has(s,['tous les véhicules à moteur'])) return 'Ne pas accéder avec un véhicule à moteur dans la zone interdite.';
+    if(has(s,['à l’exception des cyclomoteurs'])) return 'Ne pas accéder avec un véhicule à moteur, sauf si l’on appartient à l’exception explicitement indiquée.';
+    if(has(s,['arrêt au poste de péage'])) return 'Ralentir et s’arrêter au poste de péage pour effectuer le passage ou le paiement demandé.';
+    if(has(s,['arrêt au poste de police'])) return 'Ralentir et s’arrêter au poste de police lorsque le contrôle ou la signalisation l’exige.';
+    if(has(s,['arrêt au poste de gendarmerie'])) return 'Ralentir et s’arrêter au poste de gendarmerie lorsque le contrôle ou la signalisation l’exige.';
+    if(has(s,['interdiction aux poids lourds de dépasser'])) return s.indexOf('fin d’interdiction')===0 ? 'L’interdiction spécifique aux poids lourds prend fin ; reprendre les dépassements uniquement lorsque les autres règles le permettent.' : 'En poids lourd, ne pas dépasser les véhicules visés par le panneau dans la zone concernée.';
+    if(has(s,['interdiction de dépasser'])) return s.indexOf('fin d’interdiction')===0 ? 'L’interdiction de dépasser prend fin ; vérifier néanmoins le marquage et les autres panneaux.' : 'Ne pas dépasser les véhicules visés par le panneau dans la zone concernée.';
+    if(has(s,['faire demi-tour'])) return 'Ne pas faire demi-tour jusqu’à la prochaine intersection incluse.';
+    if(has(s,['tourner à droite à la prochaine intersection'])) return 'Ne pas tourner à droite à la prochaine intersection.';
+    if(has(s,['tourner à gauche à la prochaine intersection'])) return 'Ne pas tourner à gauche à la prochaine intersection.';
+    if(has(s,['sens interdit'])) return 'Ne pas entrer dans cette voie avec le véhicule : le sens d’accès est interdit.';
+    if(has(s,['circulation interdite à tout véhicule dans les deux sens'])) return 'Ne pas engager le véhicule dans cette voie dans l’un ou l’autre sens.';
+    if(has(s,['franchir le feu pour aller tout droit'])) return 'Pour le cycliste concerné, le franchissement est autorisé uniquement pour aller tout droit et dans les conditions indiquées par le signal.';
+    if(has(s,['franchir le feu pour s’engager à droite'])) return 'Pour le cycliste concerné, le franchissement est autorisé uniquement pour tourner à droite et dans les conditions indiquées par le signal.';
+    if(has(s,['carrefour à sens giratoire'])) return 'À l’approche du giratoire, ralentir, observer les autres usagers et suivre la circulation dans le sens indiqué.';
+    if(has(s,['annonce d’un stop'])) return 'Ralentir en anticipant le STOP annoncé à 150 m et se préparer à effectuer l’arrêt obligatoire au panneau STOP.';
+    if(has(s,['cédez le passage à l’intersection'])) return 'Ralentir, contrôler la circulation et céder le passage avant de s’engager lorsque la situation l’exige.';
+    if(has(s,['annonce d’un cédez-le-passage'])) return 'Anticiper le cédez-le-passage annoncé à 150 m et préparer son contrôle de l’intersection.';
+    if(s.indexOf('stop — signal de position')===0 || s==='stop') return 'S’arrêter au STOP, contrôler la circulation puis ne repartir que lorsque l’engagement est possible en sécurité.';
+    if(has(s,['priorité par rapport à la circulation venant en sens inverse'])) return 'Laisser la priorité à la circulation venant en sens inverse avant de franchir la section concernée.';
+    if(has(s,['cédez le passage à la circulation venant en sens inverse'])) return 'Ralentir et céder le passage aux véhicules venant en sens inverse avant de poursuivre.';
+    if(has(s,['caractère prioritaire d’une route'])) return s.indexOf('fin du')===0 ? 'La route cesse d’être prioritaire ; vérifier désormais la nouvelle signalisation de priorité.' : 'Poursuivre en tenant compte du caractère prioritaire de la route, tout en contrôlant les intersections.';
+    if(has(s,['doivent me céder le passage'])) return 'À l’intersection, contrôler la circulation et poursuivre en tenant compte de la priorité indiquée.';
+    if(has(s,['tenu de céder le passage aux véhicules venant de droite'])) return 'Ralentir et céder le passage aux véhicules venant de droite avant de s’engager.';
+    if(has(s,['demi-barrières à fonctionnement automatique sont fermées'])) return 'S’arrêter avant le passage à niveau et ne pas franchir les demi-barrières lorsque le feu rouge clignote et que la sonnerie fonctionne.';
+    if(has(s,['balises d’annonce d’un passage à niveau'])) return 'Ralentir et rester particulièrement attentif : ces balises annoncent l’approche d’un passage à niveau.';
+    if(has(s,['passage à niveau','voie ferrée'])) return 'À l’approche du passage à niveau, ralentir, observer la signalisation et ne s’engager que lorsque le franchissement est sûr et autorisé.';
+    if(has(s,['voie ferrée que je vais traverser sera électrifiée'])) return 'Anticiper la traversée d’une voie ferrée électrifiée et respecter strictement la signalisation du passage à niveau.';
+    if(has(s,['danger aérien'])) return 'Ralentir et rester attentif au danger aérien signalé.';
+    if(has(s,['débouché de cyclistes'])) return 'Ralentir et surveiller les débouchés possibles de cyclistes à droite ou à gauche.';
+    if(has(s,['animaux sauvages'])) return 'Ralentir et surveiller la chaussée et ses abords pour anticiper l’arrivée d’animaux.';
+    if(has(s,['cavaliers'])) return 'Ralentir et surveiller les abords pour pouvoir réagir à la présence de cavaliers.';
+    if(has(s,['animaux domestiques'])) return 'Ralentir et surveiller la chaussée pour anticiper le passage d’animaux domestiques.';
+    if(has(s,['endroit fréquenté par les enfants'])) return 'Ralentir fortement, augmenter la vigilance et anticiper les traversées imprévisibles d’enfants.';
+    if(has(s,['manche à air'])) return 'Observer la manche à air et adapter son allure et sa trajectoire au risque signalé, notamment en cas de vent.';
+    if(has(s,['vent latéral'])) return 'Réduire l’allure si nécessaire et tenir fermement la trajectoire pour anticiper les déports dus au vent.';
+    if(has(s,['feux tricolores'])) return 'Ralentir à l’approche et se préparer à respecter les feux tricolores.';
+    if(has(s,['pont mobile'])) return 'Ralentir et se préparer à l’éventuelle interruption de circulation liée au pont mobile.';
+    if(has(s,['circulation dans les deux sens'])) return 'Rester attentif à la circulation venant en face et adapter sa trajectoire et sa vitesse.';
+    if(has(s,['chute de pierres'])) return 'Ralentir, garder une distance de sécurité et rester attentif aux pierres présentes ou pouvant tomber sur la chaussée.';
+    if(has(s,['descente dangereuse'])) return 'Réduire l’allure avant la descente et garder le contrôle du véhicule sans accélération inutile.';
+    if(has(s,['chaussée particulièrement glissante'])) return 'Réduire l’allure, éviter les manœuvres brusques et augmenter la distance de sécurité.';
+    if(has(s,['quai ou une berge'])) return 'Ralentir fortement et rester à distance du bord pour éviter toute sortie de chaussée vers le quai ou la berge.';
+    if(has(s,['chaussée rétrécie par la droite'])) return 'Ralentir et anticiper le rétrécissement venant de droite, en contrôlant les véhicules autour de soi.';
+    if(has(s,['chaussée rétrécie par la gauche'])) return 'Ralentir et anticiper le rétrécissement venant de gauche, en contrôlant les véhicules autour de soi.';
+    if(has(s,['chaussée rétrécie'])) return 'Ralentir, contrôler les véhicules en face et autour de soi, puis franchir le passage rétréci avec prudence.';
+    if(has(s,['succession de virages'])) return 'Réduire l’allure avant la série de virages, regarder loin et adapter la trajectoire à chaque virage.';
+    if(has(s,['virage à gauche'])) return 'Ralentir avant le virage à gauche, contrôler la trajectoire et rester attentif à la circulation en sens inverse.';
+    if(has(s,['virage à droite'])) return 'Ralentir avant le virage à droite, contrôler la trajectoire et conserver une marge de sécurité.';
+    if(has(s,['danger non précisé'])) return 'Ralentir, observer attentivement la situation et rechercher la signalisation complémentaire qui précise le danger.';
+
+    if(p.cat==='danger') return 'Ralentir, observer attentivement et anticiper le danger signalé avant de poursuivre.';
+    if(p.cat==='interdiction') return 'Ne pas effectuer l’action ou ne pas accéder avec le véhicule visé par le panneau dans la zone concernée.';
+    if(p.cat==='obligation') return 'Respecter exactement la direction, la voie ou la consigne imposée par le panneau.';
+    if(p.cat==='priorite') return 'Identifier la règle de priorité indiquée, contrôler la circulation et s’engager seulement lorsque la situation le permet.';
+    if(p.cat==='stationnement') return 'Respecter la règle de stationnement indiquée : emplacement, durée, alternance ou interdiction.';
+    return 'Utiliser l’information du panneau pour préparer sa conduite et suivre la consigne indiquée.';
+  }
+
+  function memory(p, action){
+    var s=(p.signif||p.nom||'').toLowerCase();
+    if(p.cat==='danger') return 'Danger = je ralentis, j’observe et j’anticipe.';
+    if(p.cat==='interdiction') return 'Interdiction = je ne fais pas ce que le panneau interdit.';
+    if(p.cat==='obligation') return 'Obligation = je suis la direction, la voie ou la consigne imposée.';
+    if(p.cat==='priorite') return 'Priorité = je contrôle avant de m’engager.';
+    if(p.cat==='stationnement') return 'Stationnement = je vérifie toujours la zone, la durée et les conditions.';
+    if(has(s,['paiement','péage'])) return 'Péage = je ralentis, je choisis la bonne voie et je paie selon l’indication.';
+    if(has(s,['autoroute'])) return 'Autoroute = je prépare mon entrée ou ma sortie et je respecte la voie indiquée.';
+    if(has(s,['piste','voie verte','aire piétonne'])) return 'Voie réservée = je respecte l’espace et les usagers auxquels il est destiné.';
+    if(p.cat==='indication') return 'Indication = le panneau me donne une information utile pour préparer ma prochaine action.';
+    if(has(s,['passage à niveau'])) return 'Passage à niveau = je ralentis, j’observe et je ne franchis que si c’est sûr.';
+    return 'Méthode : je reconnais le panneau → je comprends la consigne → j’adapte ma conduite.';
+  }
+
+  PANNEAUX.forEach(function(p){
+    p.comportement = behavior(p);
+    p.retenir = memory(p, p.comportement);
+  });
+})();
