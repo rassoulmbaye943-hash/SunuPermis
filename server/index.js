@@ -37,17 +37,19 @@
  *  - DELETE /api/admin/questions/:id
  *
  * Le fichier server/server.js (legacy) est conservé pour référence mais n'est plus
- * nécessaire au fonctionnement. Toutes les données partagent le même fichier
- * server/data/db.json via le repository unifié (server/lib/repository.js).
+ * nécessaire au fonctionnement. Le repository JSON est réservé au développement
+ * local ; la production utilise PostgreSQL via server/lib/postgres-repository.js.
  */
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 
 const app = express();
+if (process.env.VERCEL === '1') app.set('trust proxy', 1);
 const PORT = Number.parseInt(process.env.PORT || '3000', 10);
 const ROOT = path.resolve(__dirname, '..');
 const DATA_DIR = path.join(ROOT, 'server', 'data');
@@ -66,12 +68,24 @@ const { createRoutes: createContactRoutes } = require('./routes/contact');
 // ---------------------------------------------------------------------------
 // Initialisation du repository unifié (source unique de données).
 // ---------------------------------------------------------------------------
-const repo = new Repository(DATA_DIR);
+const isProductionRuntime = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+let repo;
+if (process.env.DATABASE_URL) {
+  const { PostgresRepository } = require('./lib/postgres-repository');
+  repo = new PostgresRepository(process.env.DATABASE_URL);
+} else if (isProductionRuntime) {
+  throw new Error('DATABASE_URL est obligatoire en production ; le stockage JSON n’est réservé qu’au développement local.');
+} else {
+  repo = new Repository(DATA_DIR);
+}
+app.locals.repositoryReady = repo.ready || Promise.resolve(repo);
+app.locals.repositoryReady.catch(() => {});
 
 // ---------------------------------------------------------------------------
 // En-têtes de sécurité de base (aucune dépendance supplémentaire).
 // ---------------------------------------------------------------------------
 app.disable('x-powered-by');
+app.use(compression());
 app.use((_req, res, next) => {
   res.set({
     'X-Content-Type-Options': 'nosniff',
@@ -85,8 +99,9 @@ app.use((_req, res, next) => {
 // ---------------------------------------------------------------------------
 // CORS restrictif.
 // ---------------------------------------------------------------------------
-const allowedOrigins = String(process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000')
+const configuredOrigins = String(process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000')
   .split(',').map((origin) => origin.trim()).filter(Boolean);
+const allowedOrigins = Array.from(new Set(configuredOrigins.concat('https://sunupermis.vercel.app')));
 
 app.use(cors({
   origin(origin, callback) {
@@ -99,6 +114,15 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '256kb', strict: true }));
+app.use('/api', async (_req, res, next) => {
+  try {
+    await app.locals.repositoryReady;
+    return next();
+  } catch (error) {
+    console.error('Repository indisponible :', error.message);
+    return res.status(503).json({ erreur: 'Le service de données est temporairement indisponible.' });
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Limitation simple des requêtes publiques (fenêtre glissante par IP).
@@ -134,15 +158,21 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
 // ---------------------------------------------------------------------------
 // Route de santé.
 // ---------------------------------------------------------------------------
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.json({
-    status: 'ok',
-    serveur: 'SunuPermis backend',
-    port: PORT,
-    users: repo.users.length,
-    questions: (repo.questions || []).length
-  });
+  try {
+    const counts = await repo.getCounts();
+    return res.json({
+      status: 'ok',
+      serveur: 'SunuPermis backend',
+      port: PORT,
+      users: counts.users,
+      questions: counts.questions
+    });
+  } catch (error) {
+    console.error('Vérification de santé impossible :', error.message);
+    return res.status(503).json({ status: 'indisponible', serveur: 'SunuPermis backend' });
+  }
 });
 
 // ---------------------------------------------------------------------------

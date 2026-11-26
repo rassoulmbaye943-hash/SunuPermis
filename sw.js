@@ -1,15 +1,15 @@
 /* SunuPermis — service worker : cache des pages et ressources statiques. */
 'use strict';
 
-const CACHE_NAME = 'sunupermis-v16';
+const CACHE_NAME = 'sunupermis-v17';
 const CORE_ASSETS = [
   '/', 'index.html', 'permis.html', 'code-route.html', 'priorites.html',
   'conduire.html', 'manoeuvres.html', 'videotheque.html', 'quiz.html',
   'examen.html', 'progression.html', 'glossaire.html', 'conseils-examen.html',
   'carte-senegal.html', 'profil.html', 'admin.html', 'offres.html',
-  'css/style.css', 'js/main.js', 'js/layout.js', 'js/i18n.js', 'js/data.js',
+  'css/style.css', 'js/main.js', 'js/layout.js', 'js/i18n.js', 'js/data-panneaux.js', 'js/data-quiz.js', 'js/data-videos.js', 'js/data-glossaire.js', 'js/data-manoeuvres.js', 'js/data-villes.js',
   'js/signs.js', 'js/quiz.js', 'js/exam.js', 'js/progress.js', 'js/progress-sync.js', 'js/api.js',
-  'js/raoul-chat.js',
+  'js/raoul-chat.js', 'js/admin.js', 'js/sign-learning.js',
   'assets/icon-192.svg', 'assets/icon-512.svg', 'manifest.json'
 ];
 

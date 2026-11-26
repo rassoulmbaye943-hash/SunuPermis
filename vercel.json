@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "{server/data/raoul-knowledge.md,js/data-*.js}",
+      "excludeFiles": "{server/data/db*.json,server/data/db.json.*,server/data/secret.key,.env,.env.*}",
+      "regions": ["lhr1"]
+    }
+  }
+}

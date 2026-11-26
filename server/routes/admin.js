@@ -10,7 +10,7 @@
  * POST /api/admin/questions    (admin)  { theme, q, rep[], correct, exp, source }
  * DELETE /api/admin/questions/:id (admin)
  *
- * Utilise le repository partagé (db.json) et le service d'authentification unifié.
+ * Utilise le repository partagé (JSON local ou Postgres) et le service d'authentification unifié.
  * Le premier administrateur est créé depuis ADMIN_EMAIL / ADMIN_PASSWORD (.env).
  */
 const express = require('express');
@@ -25,7 +25,7 @@ function createRoutes(repo) {
   const router = express.Router();
   const requireAuth = authUser(repo);
   const { signToken, getJwtSecret, getTtlSeconds, verifyPassword, hashPassword } = authService;
-  const content = loadContent(path.resolve(__dirname, '..', '..', 'js', 'data.js'));
+  const content = loadContent(path.resolve(__dirname, '..', '..', 'js'));
 
   function publicUser(u) {
     return {
@@ -54,11 +54,11 @@ function createRoutes(repo) {
       }
 
       // L'administrateur est soit dans la table users (rôle admin), soit créé depuis .env.
-      let admin = repo.findUserByEmail(adminEmail);
+      let admin = await repo.findUserByEmail(adminEmail);
 
       // Création initiale uniquement à partir des identifiants .env (pas de rétrogradation).
       if (!admin) {
-        const existingAdmin = repo.findAdminByEmail(adminEmail);
+        const existingAdmin = await repo.findAdminByEmail(adminEmail);
         if (!existingAdmin) {
           const passwordHash = await hashPassword(adminPassword);
           admin = {
@@ -70,14 +70,14 @@ function createRoutes(repo) {
             passwordHash,
             createdAt: new Date().toISOString()
           };
-          repo.addUser(admin);
+          await repo.addUser(admin);
         } else {
           admin = existingAdmin;
         }
       }
 
       // Vérifie le mot de passe (dans users ou admins).
-      const passwordHash = admin.passwordHash || (repo.findAdminByEmail(email) || {}).passwordHash;
+      const passwordHash = admin.passwordHash || ((await repo.findAdminByEmail(email)) || {}).passwordHash;
       const ok = passwordHash ? await verifyPassword(password, passwordHash) : false;
 
       if (email !== adminEmail || !ok) {
@@ -86,7 +86,7 @@ function createRoutes(repo) {
 
       // S'assurer que le rôle est bien admin.
       if (admin.role !== 'admin') {
-        repo.updateUser(admin.id, { role: 'admin' });
+        await repo.updateUser(admin.id, { role: 'admin' });
         admin.role = 'admin';
       }
 
@@ -101,21 +101,21 @@ function createRoutes(repo) {
   /* ---------- Routes protégées (admin) ---------- */
 
   /* GET /api/admin/stats */
-  router.get('/stats', requireAuth, authAdmin, (_req, res) => {
+  router.get('/stats', requireAuth, authAdmin, async (_req, res) => {
     try {
-      const allProgress = Object.values(repo.progress || {}).filter(Boolean);
-      const sum = (fn) => allProgress.reduce((n, p) => n + (fn(p) || 0), 0);
+      const stats = await repo.getAdminStats();
+      const questions = await repo.listQuestions();
       return res.status(200).json({
-        users: repo.users.length,
-        admins: repo.users.filter((u) => u.role === 'admin').length,
-        questions: content.QUIZ_BANK.length + (repo.questions || []).length,
-        customQuestions: (repo.questions || []).length,
+        users: stats.users,
+        admins: stats.admins,
+        questions: content.QUIZ_BANK.length + questions.length,
+        customQuestions: questions.length,
         panneaux: content.PANNEAUX.length,
         videos: content.VIDEOS.length,
-        inscriptions: repo.inscriptions.length,
-        messages: repo.messages.length,
-        quizzesTaken: sum((p) => (p.quizScores || []).length),
-        examsTaken: sum((p) => (p.examResults || []).length)
+        inscriptions: stats.inscriptions,
+        messages: stats.messages,
+        quizzesTaken: stats.quizzes_taken,
+        examsTaken: stats.exams_taken
       });
     } catch (err) {
       return res.status(500).json({ erreur: 'Erreur lors du calcul des statistiques.' });
@@ -123,15 +123,16 @@ function createRoutes(repo) {
   });
 
   /* GET /api/admin/users */
-  router.get('/users', requireAuth, authAdmin, (_req, res) => {
+  router.get('/users', requireAuth, authAdmin, async (_req, res) => {
     try {
-      const users = repo.users.map((u) => {
-        const p = repo.getProgress(u.id) || {};
+      const records = await repo.listUsers();
+      const users = await Promise.all(records.map(async (u) => {
+        const p = await repo.getProgress(u.id) || {};
         return Object.assign({}, publicUser(u), {
           quizzes: (p.quizScores || []).length,
           exams: (p.examResults || []).length
         });
-      });
+      }));
       return res.status(200).json({ count: users.length, results: users });
     } catch (err) {
       return res.status(500).json({ erreur: 'Erreur lors de la lecture des utilisateurs.' });
@@ -139,11 +140,12 @@ function createRoutes(repo) {
   });
 
   /* GET /api/admin/questions */
-  router.get('/questions', requireAuth, authAdmin, (_req, res) => {
+  router.get('/questions', requireAuth, authAdmin, async (_req, res) => {
     try {
       const limit = Number.parseInt(_req.query.limit, 10);
+      const customQuestions = await repo.listQuestions();
       let list = content.QUIZ_BANK.map((q, i) => Object.assign({ id: 'b' + (i + 1), custom: false }, q))
-        .concat((repo.questions || []).map((q) => Object.assign({ custom: true }, q)));
+        .concat(customQuestions.map((q) => Object.assign({ custom: true }, q)));
       if (limit > 0) list = list.slice(0, Math.min(limit, 200));
       return res.status(200).json({ count: list.length, results: list });
     } catch (err) {
@@ -152,7 +154,7 @@ function createRoutes(repo) {
   });
 
   /* POST /api/admin/questions */
-  router.post('/questions', requireAuth, authAdmin, (req, res) => {
+  router.post('/questions', requireAuth, authAdmin, async (req, res) => {
     try {
       const cleaned = cleanQuestion(req.body || {});
 
@@ -162,7 +164,7 @@ function createRoutes(repo) {
         createdAt: new Date().toISOString()
       };
 
-      repo.addQuestion(question);
+      await repo.addQuestion(question);
       return res.status(201).json({ question: Object.assign({ custom: true }, question) });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible d\'ajouter la question.' });
@@ -170,12 +172,16 @@ function createRoutes(repo) {
   });
 
   /* DELETE /api/admin/questions/:id */
-  router.delete('/questions/:id', requireAuth, authAdmin, (req, res) => {
-    const removed = repo.removeQuestion(req.params.id);
-    if (!removed) {
-      return res.status(404).json({ erreur: 'Question introuvable (seules les questions ajoutées peuvent être supprimées).' });
+  router.delete('/questions/:id', requireAuth, authAdmin, async (req, res) => {
+    try {
+      const removed = await repo.removeQuestion(req.params.id);
+      if (!removed) {
+        return res.status(404).json({ erreur: 'Question introuvable (seules les questions ajoutées peuvent être supprimées).' });
+      }
+      return res.status(200).json({ message: 'Question supprimée.' });
+    } catch (_error) {
+      return res.status(500).json({ erreur: 'Impossible de supprimer la question pour le moment.' });
     }
-    return res.status(200).json({ message: 'Question supprimée.' });
   });
 
   return router;

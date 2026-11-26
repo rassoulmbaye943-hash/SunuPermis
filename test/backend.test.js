@@ -67,7 +67,7 @@ test('API SunuPermis : réservation admin, progression, permissions et contenu',
 
   const putProgress = handler(progress, 'put', '/');
   const progressResponse = response();
-  putProgress({ user: { id: user.id }, body: { progress: {
+  await putProgress({ user: { id: user.id }, body: { progress: {
     lessonsSeen: { 'code-route': true },
     quizScores: [{ theme: 'panneaux', score: 2, total: 3, date: '2026-11-25' }]
   } } }, progressResponse);
@@ -78,26 +78,26 @@ test('API SunuPermis : réservation admin, progression, permissions et contenu',
   await loginAdmin({ body: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD } }, adminResponse);
   assert.equal(adminResponse.statusCode, 200);
   assert.equal(adminResponse.payload.user.role, 'admin');
-  const adminUser = repo.findUserById(adminResponse.payload.user.id);
+  const adminUser = await repo.findUserById(adminResponse.payload.user.id);
   const adminToken = adminResponse.payload.token;
 
   const statsRoute = admin.stack.find((item) => item.route && item.route.path === '/stats').route;
   const getStats = statsRoute.stack[statsRoute.stack.length - 1].handle;
   const statsResponse = response();
-  getStats({ user: { id: adminUser.id, role: 'admin' } }, statsResponse);
+  await getStats({ user: { id: adminUser.id, role: 'admin' } }, statsResponse);
   assert.equal(statsResponse.statusCode, 200);
   assert.ok(statsResponse.payload.panneaux > 0);
   assert.ok(statsResponse.payload.videos >= 0);
 
   const addQuestion = handler(admin, 'post', '/questions');
   const questionResponse = response();
-  addQuestion({ body: { theme: 'priorites', q: 'Question de contrôle ?', rep: ['A', 'B'], correct: 0, source: 'Test interne' } }, questionResponse);
+  await addQuestion({ body: { theme: 'priorites', q: 'Question de contrôle ?', rep: ['A', 'B'], correct: 0, source: 'Test interne' } }, questionResponse);
   assert.equal(questionResponse.statusCode, 201);
   assert.equal(questionResponse.payload.question.correct, 0);
 
   let nextCalled = false;
   const adminAuthResponse = response();
-  authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, adminAuthResponse, () => { nextCalled = true; });
+  await authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, adminAuthResponse, () => { nextCalled = true; });
   assert.equal(nextCalled, true);
   assert.equal(adminAuthResponse.statusCode, 200);
   const forbidden = response();
@@ -106,27 +106,48 @@ test('API SunuPermis : réservation admin, progression, permissions et contenu',
   assert.equal(forbidden.statusCode, 403);
   assert.equal(forbiddenNext, false);
 
-  repo.updateUser(adminUser.id, { role: 'user' });
+  await repo.updateUser(adminUser.id, { role: 'user' });
   const demoted = response();
   let demotedNext = false;
-  authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, demoted, () => { demotedNext = true; });
+  await authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, demoted, () => { demotedNext = true; });
   assert.equal(demotedNext, true);
   const demotedAdmin = response();
-  authAdmin({ user: { id: adminUser.id, role: repo.findUserById(adminUser.id).role } }, demotedAdmin, () => {});
+  authAdmin({ user: { id: adminUser.id, role: (await repo.findUserById(adminUser.id)).role } }, demotedAdmin, () => {});
   assert.equal(demotedAdmin.statusCode, 403, 'la rétrogradation invalide les anciens privilèges admin');
 
-  repo.removeUser(user.id);
+  await repo.removeUser(user.id);
   const deleted = response();
   let deletedNext = false;
-  authUser(repo)({ headers: { authorization: 'Bearer ' + userToken } }, deleted, () => { deletedNext = true; });
+  await authUser(repo)({ headers: { authorization: 'Bearer ' + userToken } }, deleted, () => { deletedNext = true; });
   assert.equal(deleted.statusCode, 401);
   assert.equal(deletedNext, false, 'un token lié à un compte supprimé doit être refusé');
 
   const tampered = response();
   let tamperedNext = false;
-  authUser(repo)({ headers: { authorization: 'Bearer ' + userToken + 'x' } }, tampered, () => { tamperedNext = true; });
+  await authUser(repo)({ headers: { authorization: 'Bearer ' + userToken + 'x' } }, tampered, () => { tamperedNext = true; });
   assert.equal(tampered.statusCode, 401);
   assert.equal(tamperedNext, false);
 
   assert.equal(typeof authService.verifyToken, 'function');
+});
+
+test('fonction Vercel : refuse de démarrer sans DATABASE_URL', async (t) => {
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
+  t.after(() => {
+    if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = previousDatabaseUrl;
+  });
+
+  const handlerVercel = require('../api/[...path].js');
+  const res = {
+    statusCode: 200,
+    headers: {},
+    body: '',
+    setHeader(name, value) { this.headers[name] = value; },
+    end(value) { this.body = value; }
+  };
+  await handlerVercel({}, res);
+  assert.equal(res.statusCode, 503);
+  assert.match(JSON.parse(res.body).erreur, /DATABASE_URL/);
 });

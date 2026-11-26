@@ -1,0 +1,11 @@
+.env
+.env.*
+server/data/db*.json
+server/data/db.json.*
+server/data/*.tmp
+server/data/*.key
+server/data/schema.sql
+scripts/db-migrate.js
+docs/
+.manus/
+.kilo/

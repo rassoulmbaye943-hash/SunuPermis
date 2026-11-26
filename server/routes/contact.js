@@ -6,8 +6,8 @@
  * POST /api/contact   → enregistre un message de contact
  * GET  /api/contact   (admin) → liste les messages de contact
  *
- * Utilise le repository unifié (server/lib/repository.js) pour partager
- * le même fichier db.json avec toutes les autres routes.
+ * Utilise le repository unifié choisi par le serveur : JSON en local,
+ * PostgreSQL en production.
  */
 const express = require('express');
 const { authUser } = require('../middleware/auth-user');
@@ -18,7 +18,7 @@ function createRoutes(repo) {
   const requireAuth = authUser(repo);
 
   /* POST /api/contact */
-  router.post('/', (_req, res) => {
+  router.post('/', async (_req, res) => {
     try {
       const { nom, telephone, sujet, message } = _req.body || {};
 
@@ -42,7 +42,7 @@ function createRoutes(repo) {
         dateEnvoi: new Date().toISOString()
       };
 
-      repo.addMessage(msg);
+      await repo.addMessage(msg);
       return res.status(201).json({ message: 'Message envoyé avec succès.', contact: msg });
     } catch (err) {
       console.error('Erreur POST /api/contact :', err);
@@ -51,9 +51,9 @@ function createRoutes(repo) {
   });
 
   /* GET /api/contact  (admin, protégé) */
-  router.get('/', requireAuth, authAdmin, (_req, res) => {
+  router.get('/', requireAuth, authAdmin, async (_req, res) => {
     try {
-      const liste = (repo.messages || []).slice().sort((a, b) => b.dateEnvoi.localeCompare(a.dateEnvoi));
+      const liste = await repo.listMessages();
       return res.json({ messages: liste });
     } catch (err) {
       console.error('Erreur GET /api/contact :', err);

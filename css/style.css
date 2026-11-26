@@ -3292,6 +3292,9 @@ main > .section-tight.section-alt .btn-outline {
   cursor: pointer;
   line-height: 1;
   padding: 0 4px;
+  margin-left: auto;
+  transition: opacity 0.2s ease;
+  margin-right: -4px;
 }
 .raoul-close:hover {
   opacity: 1;
@@ -3388,6 +3391,7 @@ main > .section-tight.section-alt .btn-outline {
   border-color: var(--primary, #1c5245);
   outline: 3px solid var(--ochre-500, #e0a639);
   outline-offset: 2px;
+  color: #000;
 }
 .raoul-composer input:disabled {
   opacity: 0.6;

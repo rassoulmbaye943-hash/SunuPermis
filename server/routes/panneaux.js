@@ -12,7 +12,7 @@ const path = require('path');
 function createRoutes(repo) {
   const router = express.Router();
   const ROOT = path.resolve(__dirname, '..', '..');
-  const content = loadContent(path.join(ROOT, 'js', 'data.js'));
+  const content = loadContent(path.join(ROOT, 'js'));
 
   /* GET /api/panneaux */
   router.get('/', (req, res) => {

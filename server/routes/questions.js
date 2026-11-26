@@ -6,8 +6,8 @@
  * GET /api/questions?theme=&limit=&random=1
  *
  * Les questions proviennent de js/data.js (source unique de vérité partagée
- * avec le frontend), complétées par les questions personnalisées stockées
- * dans le repository (db.json).
+ * avec le frontend), complétées par les questions personnalisées du repository
+ * local JSON ou PostgreSQL selon l’environnement.
  */
 const express = require('express');
 const { loadContent } = require('../lib/content');
@@ -16,23 +16,22 @@ const path = require('path');
 function createRoutes(repo) {
   const router = express.Router();
   const ROOT = path.resolve(__dirname, '..', '..');
-  const content = loadContent(path.join(ROOT, 'js', 'data.js'));
+  const content = loadContent(path.join(ROOT, 'js'));
 
   const bankQuestions = content.QUIZ_BANK.map((q, i) =>
     Object.assign({ id: 'b' + (i + 1), custom: false }, q)
   );
 
-  function allQuestions() {
-    return bankQuestions.concat(
-      (repo.questions || []).map((q) => Object.assign({ custom: true }, q))
-    );
+  async function allQuestions() {
+    const customQuestions = await repo.listQuestions();
+    return bankQuestions.concat(customQuestions.map((q) => Object.assign({ custom: true }, q)));
   }
 
   /* GET /api/questions */
-  router.get('/', (req, res) => {
+  router.get('/', async (req, res) => {
     try {
       const theme = req.query.theme;
-      let list = allQuestions().filter((q) =>
+      let list = (await allQuestions()).filter((q) =>
         !theme || theme === 'tous' || q.theme === theme
       );
       const total = list.length;

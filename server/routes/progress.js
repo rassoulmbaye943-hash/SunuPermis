@@ -7,8 +7,8 @@
  * PUT    /api/progress   (authentifié)  → fusionne et enregistre la progression
  * DELETE /api/progress   (authentifié)  → supprime la progression de l'utilisateur
  *
- * Le repository est partagé avec le serveur principal pour garantir
- * l'intégrité des données (un seul fichier db.json via server/lib/repository.js).
+ * Le repository est partagé avec le serveur principal : JSON en développement
+ * local et PostgreSQL en production.
  */
 const express = require('express');
 const { authUser } = require('../middleware/auth-user');
@@ -62,9 +62,9 @@ function createRoutes(repo) {
   }
 
   /* GET /api/progress */
-  router.get('/', requireAuth, (req, res) => {
+  router.get('/', requireAuth, async (req, res) => {
     try {
-      const progress = repo.getProgress(req.user.id) || {};
+      const progress = await repo.getProgress(req.user.id) || {};
       return res.status(200).json({ progress: sanitizeProgress(progress) });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible d\'extraire la progression.' });
@@ -72,10 +72,10 @@ function createRoutes(repo) {
   });
 
   /* PUT /api/progress  (fusion avec l'existant, rien n'est écrasé) */
-  router.put('/', requireAuth, (req, res) => {
+  router.put('/', requireAuth, async (req, res) => {
     try {
       const incoming = req.body && req.body.progress !== undefined ? req.body.progress : req.body;
-      const merged = repo.mergeProgress(req.user.id, incoming);
+      const merged = await repo.mergeProgress(req.user.id, incoming);
       return res.status(200).json({ progress: merged, message: 'Progression enregistrée.' });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible d\'enregistrer la progression.' });
@@ -83,9 +83,9 @@ function createRoutes(repo) {
   });
 
   /* DELETE /api/progress */
-  router.delete('/', requireAuth, (req, res) => {
+  router.delete('/', requireAuth, async (req, res) => {
     try {
-      repo.deleteProgress(req.user.id);
+      await repo.deleteProgress(req.user.id);
       return res.status(200).json({ message: 'Progression supprimée.' });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible de supprimer la progression.' });

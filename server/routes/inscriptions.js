@@ -22,7 +22,7 @@ function createRoutes(repo) {
   const requireAuth = authUser(repo);
 
   /* POST /api/inscriptions */
-  r.post('/', (_req, res) => {
+  r.post('/', async (_req, res) => {
     try {
       const {
         nom, prenom, telephone, whatsapp, ville, dateNaissance, typePermis, message
@@ -57,7 +57,7 @@ function createRoutes(repo) {
         statut: 'en attente'
       };
 
-      repo.addInscription(inscription);
+      await repo.addInscription(inscription);
       return res.status(201).json({ inscription, message: 'Inscription enregistrée avec succès.' });
     } catch (err) {
       console.error('Erreur POST /api/inscriptions :', err);
@@ -66,13 +66,9 @@ function createRoutes(repo) {
   });
 
   /* GET /api/inscriptions  (admin, protégé) */
-  r.get('/', requireAuth, authAdmin, (_req, res) => {
+  r.get('/', requireAuth, authAdmin, async (_req, res) => {
     try {
-      let liste = (repo.inscriptions || []).slice();
-      if (_req.query.statut) {
-        liste = liste.filter((i) => i.statut === _req.query.statut);
-      }
-      liste = liste.slice().sort((a, b) => b.dateInscription.localeCompare(a.dateInscription));
+      const liste = await repo.listInscriptions(_req.query.statut);
       return res.json({ inscriptions: liste });
     } catch (err) {
       console.error('Erreur GET /api/inscriptions :', err);
@@ -81,14 +77,14 @@ function createRoutes(repo) {
   });
 
   /* PUT /api/inscriptions/:id  (admin, protégé) */
-  r.put('/:id', requireAuth, authAdmin, (_req, res) => {
+  r.put('/:id', requireAuth, authAdmin, async (_req, res) => {
     try {
       const { statut } = _req.body || {};
       if (!STATUTS.includes(statut)) {
         return res.status(400).json({ erreur: 'Statut invalide (en attente, contactee ou validee).' });
       }
 
-      const updated = repo.updateInscription(_req.params.id, { statut });
+      const updated = await repo.updateInscription(_req.params.id, { statut });
       if (!updated) {
         return res.status(404).json({ erreur: 'Inscription introuvable.' });
       }

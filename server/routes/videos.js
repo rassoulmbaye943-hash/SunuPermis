@@ -12,7 +12,7 @@ const path = require('path');
 function createRoutes(repo) {
   const router = express.Router();
   const ROOT = path.resolve(__dirname, '..', '..');
-  const content = loadContent(path.join(ROOT, 'js', 'data.js'));
+  const content = loadContent(path.join(ROOT, 'js'));
 
   /* GET /api/videos */
   router.get('/', (_req, res) => {

@@ -19,7 +19,7 @@ function createRoutes(repo) {
   const router = express.Router();
   const KNOWLEDGE_FILE = path.join(__dirname, '..', 'data', 'raoul-knowledge.md');
 
-  const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   const GEMINI_TIMEOUT = Number.parseInt(process.env.GEMINI_TIMEOUT || '20000', 10);
   const MAX_HISTORY = Number.parseInt(process.env.RAOUL_MAX_HISTORY || '12', 10);
 

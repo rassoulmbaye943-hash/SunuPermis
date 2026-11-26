@@ -85,6 +85,10 @@ class Repository {
   get users() { return this.data.users; }
   set users(value) { this.data.users = value; }
 
+  listUsers() {
+    return this.users.slice();
+  }
+
   findUserByEmail(email) {
     if (!email) return undefined;
     return this.users.find((u) => String(u.email).toLowerCase() === String(email).toLowerCase());
@@ -92,6 +96,26 @@ class Repository {
 
   findUserById(id) {
     return this.users.find((u) => u.id === id);
+  }
+
+  getCounts() {
+    return { users: this.users.length, questions: this.questions.length };
+  }
+
+  getAdminStats() {
+    const progress = Object.values(this.progress || {}).filter(Boolean);
+    const sum = (field) => progress.reduce((count, item) => count + (Array.isArray(item[field]) ? item[field].length : 0), 0);
+    const adminEmails = new Set(this.users.filter((user) => user.role === 'admin').map((user) => String(user.email).toLowerCase()));
+    this.admins.forEach((admin) => adminEmails.add(String(admin.email).toLowerCase()));
+    return {
+      users: this.users.length,
+      admins: adminEmails.size,
+      custom_questions: this.questions.length,
+      inscriptions: this.inscriptions.length,
+      messages: this.messages.length,
+      quizzes_taken: sum('quizScores'),
+      exams_taken: sum('examResults')
+    };
   }
 
   addUser(user) {
@@ -146,6 +170,10 @@ class Repository {
   get questions() { return this.data.questions; }
   set questions(value) { this.data.questions = value; }
 
+  listQuestions() {
+    return this.questions.slice();
+  }
+
   addQuestion(question) {
     this.questions.push(question);
     this.save();
@@ -162,6 +190,11 @@ class Repository {
 
   get inscriptions() { return this.data.inscriptions; }
   set inscriptions(value) { this.data.inscriptions = value; }
+
+  listInscriptions(status) {
+    const list = status ? this.inscriptions.filter((item) => item.statut === status) : this.inscriptions;
+    return list.slice().sort((a, b) => b.dateInscription.localeCompare(a.dateInscription));
+  }
 
   addInscription(inscription) {
     this.inscriptions.push(inscription);
@@ -180,6 +213,10 @@ class Repository {
   get messages() { return this.data.messages; }
   set messages(value) { this.data.messages = value; }
 
+  listMessages() {
+    return this.messages.slice().sort((a, b) => b.dateEnvoi.localeCompare(a.dateEnvoi));
+  }
+
   addMessage(message) {
     this.messages.push(message);
     this.save();
@@ -192,6 +229,10 @@ class Repository {
   findAdminByEmail(email) {
     if (!email) return undefined;
     return this.admins.find((a) => String(a.email).toLowerCase() === String(email).toLowerCase());
+  }
+
+  findAdminById(id) {
+    return this.admins.find((admin) => admin.id === id);
   }
 
   addAdmin(admin) {
@@ -271,4 +312,12 @@ function byDate(a, b) {
   return Date.parse(a.date) - Date.parse(b.date);
 }
 
-module.exports = { Repository, createId, EMPTY_SCHEMA, readRepository, writeRepository, SCHEMA_VERSION };
+module.exports = {
+  Repository,
+  createId,
+  mergeProgressObjects,
+  EMPTY_SCHEMA,
+  readRepository,
+  writeRepository,
+  SCHEMA_VERSION
+};

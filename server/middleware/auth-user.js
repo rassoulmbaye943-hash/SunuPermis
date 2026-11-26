@@ -8,7 +8,7 @@
 const authService = require('../lib/auth-service');
 
 function authUser(repo) {
-  return function authenticateUser(req, res, next) {
+  return async function authenticateUser(req, res, next) {
     const token = authService.extractBearerToken(req);
     if (!token) {
       return res.status(401).json({ erreur: 'Authentification requise.' });
@@ -25,12 +25,19 @@ function authUser(repo) {
       return res.status(401).json({ erreur: 'Session invalide ou expirée.' });
     }
 
-    const user = repo && typeof repo.findUserById === 'function'
-      ? repo.findUserById(payload.sub)
-      : null;
-    const legacyAdmin = !user && repo && Array.isArray(repo.admins)
-      ? repo.admins.find((admin) => admin.id === payload.sub)
-      : null;
+    let user;
+    let legacyAdmin;
+    try {
+      user = repo && typeof repo.findUserById === 'function'
+        ? await repo.findUserById(payload.sub)
+        : null;
+      legacyAdmin = !user && repo && typeof repo.findAdminById === 'function'
+        ? await repo.findAdminById(payload.sub)
+        : null;
+    } catch (error) {
+      console.error('Erreur de lecture du compte authentifié :', error.message);
+      return res.status(503).json({ erreur: 'Service d’authentification temporairement indisponible.' });
+    }
     const account = user || legacyAdmin;
 
     if (!account) {

@@ -95,10 +95,10 @@ function createRoutes(repo, authLimiter) {
         return res.status(409).json({ erreur: 'Cette adresse e-mail est réservée à l’administrateur.' });
       }
 
-      if (repo.findUserByEmail(email)) {
+      if (await repo.findUserByEmail(email)) {
         return res.status(409).json({ erreur: 'Un compte existe déjà avec cet e-mail.' });
       }
-      if (repo.findAdminByEmail(email)) {
+      if (await repo.findAdminByEmail(email)) {
         return res.status(409).json({ erreur: 'Un compte existe déjà avec cet e-mail.' });
       }
 
@@ -113,7 +113,7 @@ function createRoutes(repo, authLimiter) {
         createdAt: new Date().toISOString()
       };
 
-      repo.addUser(user);
+      await repo.addUser(user);
 
       return res.status(201).json({
         token: issueToken(user),
@@ -131,7 +131,7 @@ function createRoutes(repo, authLimiter) {
       const email = cleanEmail(req.body.email);
       const password = typeof req.body.password === 'string' ? req.body.password : '';
 
-      const user = repo.findUserByEmail(email);
+      const user = await repo.findUserByEmail(email);
       if (!user || !user.passwordHash) {
         return res.status(401).json({ erreur: 'E-mail ou mot de passe incorrect.' });
       }
@@ -158,24 +158,28 @@ function createRoutes(repo, authLimiter) {
   });
 
   /* ---------- Profil (authentifié) ---------- */
-  router.get('/me', requireAuth, (req, res) => {
-    const user = repo.findUserById(req.user.id);
-    if (!user) {
-      return res.status(401).json({ erreur: 'Compte introuvable.' });
+  router.get('/me', requireAuth, async (req, res) => {
+    try {
+      const user = await repo.findUserById(req.user.id);
+      if (!user) {
+        return res.status(401).json({ erreur: 'Compte introuvable.' });
+      }
+      return res.status(200).json({ user: publicUser(user) });
+    } catch (err) {
+      return res.status(503).json({ erreur: 'Impossible de lire le profil pour le moment.' });
     }
-    return res.status(200).json({ user: publicUser(user) });
   });
 
   router.patch('/me', requireAuth, requireBody, async (req, res) => {
     try {
-      const user = repo.findUserById(req.user.id);
+      const user = await repo.findUserById(req.user.id);
       if (!user) {
         return res.status(401).json({ erreur: 'Compte introuvable.' });
       }
       const changes = {};
       if (req.body.name !== undefined) changes.name = cleanText(req.body.name, 2, 80, 'Nom');
       if (req.body.objective !== undefined) changes.objective = cleanObjective(req.body.objective);
-      const updated = repo.updateUser(user.id, changes);
+      const updated = await repo.updateUser(user.id, changes);
       return res.status(200).json({ user: publicUser(updated), message: 'Profil mis à jour.' });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible de mettre à jour le profil.' });
@@ -184,7 +188,7 @@ function createRoutes(repo, authLimiter) {
 
   router.post('/me/password', requireAuth, authLimiter, requireBody, async (req, res) => {
     try {
-      const user = repo.findUserById(req.user.id);
+      const user = await repo.findUserById(req.user.id);
       if (!user || !user.passwordHash) {
         return res.status(401).json({ erreur: 'Compte introuvable.' });
       }
@@ -194,7 +198,7 @@ function createRoutes(repo, authLimiter) {
       }
       const newPassword = cleanPassword(req.body.newPassword);
       user.passwordHash = await hashPassword(newPassword);
-      repo.updateUser(user.id, { passwordHash: user.passwordHash });
+      await repo.updateUser(user.id, { passwordHash: user.passwordHash });
       return res.status(200).json({ message: 'Mot de passe modifié.' });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible de modifier le mot de passe.' });
@@ -203,7 +207,7 @@ function createRoutes(repo, authLimiter) {
 
   router.delete('/me', requireAuth, authLimiter, requireBody, async (req, res) => {
     try {
-      const user = repo.findUserById(req.user.id);
+      const user = await repo.findUserById(req.user.id);
       if (!user || !user.passwordHash) {
         return res.status(401).json({ erreur: 'Compte introuvable.' });
       }
@@ -211,7 +215,7 @@ function createRoutes(repo, authLimiter) {
       if (!(await verifyPassword(pwd, user.passwordHash))) {
         return res.status(403).json({ erreur: 'Mot de passe incorrect.' });
       }
-      repo.removeUser(user.id);
+      await repo.removeUser(user.id);
       return res.status(200).json({ message: 'Compte supprimé.' });
     } catch (err) {
       return res.status(400).json({ erreur: err.message || 'Impossible de supprimer le compte.' });
