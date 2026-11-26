@@ -14,13 +14,18 @@
  * Le premier administrateur est créé depuis ADMIN_EMAIL / ADMIN_PASSWORD (.env).
  */
 const express = require('express');
+const path = require('path');
 const authService = require('../lib/auth-service');
 const { authUser } = require('../middleware/auth-user');
 const { authAdmin } = require('../middleware/auth-admin');
+const { loadContent } = require('../lib/content');
+const { cleanQuestion } = require('../lib/validate');
 
 function createRoutes(repo) {
   const router = express.Router();
+  const requireAuth = authUser(repo);
   const { signToken, getJwtSecret, getTtlSeconds, verifyPassword, hashPassword } = authService;
+  const content = loadContent(path.resolve(__dirname, '..', '..', 'js', 'data.js'));
 
   function publicUser(u) {
     return {
@@ -96,15 +101,17 @@ function createRoutes(repo) {
   /* ---------- Routes protégées (admin) ---------- */
 
   /* GET /api/admin/stats */
-  router.get('/stats', authUser, authAdmin, (_req, res) => {
+  router.get('/stats', requireAuth, authAdmin, (_req, res) => {
     try {
       const allProgress = Object.values(repo.progress || {}).filter(Boolean);
       const sum = (fn) => allProgress.reduce((n, p) => n + (fn(p) || 0), 0);
       return res.status(200).json({
         users: repo.users.length,
         admins: repo.users.filter((u) => u.role === 'admin').length,
-        questions: (repo.questions || []).length,
+        questions: content.QUIZ_BANK.length + (repo.questions || []).length,
         customQuestions: (repo.questions || []).length,
+        panneaux: content.PANNEAUX.length,
+        videos: content.VIDEOS.length,
         inscriptions: repo.inscriptions.length,
         messages: repo.messages.length,
         quizzesTaken: sum((p) => (p.quizScores || []).length),
@@ -116,7 +123,7 @@ function createRoutes(repo) {
   });
 
   /* GET /api/admin/users */
-  router.get('/users', authUser, authAdmin, (_req, res) => {
+  router.get('/users', requireAuth, authAdmin, (_req, res) => {
     try {
       const users = repo.users.map((u) => {
         const p = repo.getProgress(u.id) || {};
@@ -132,10 +139,11 @@ function createRoutes(repo) {
   });
 
   /* GET /api/admin/questions */
-  router.get('/questions', authUser, authAdmin, (_req, res) => {
+  router.get('/questions', requireAuth, authAdmin, (_req, res) => {
     try {
       const limit = Number.parseInt(_req.query.limit, 10);
-      let list = (repo.questions || []).slice();
+      let list = content.QUIZ_BANK.map((q, i) => Object.assign({ id: 'b' + (i + 1), custom: false }, q))
+        .concat((repo.questions || []).map((q) => Object.assign({ custom: true }, q)));
       if (limit > 0) list = list.slice(0, Math.min(limit, 200));
       return res.status(200).json({ count: list.length, results: list });
     } catch (err) {
@@ -144,37 +152,13 @@ function createRoutes(repo) {
   });
 
   /* POST /api/admin/questions */
-  router.post('/questions', authUser, authAdmin, (req, res) => {
+  router.post('/questions', requireAuth, authAdmin, (req, res) => {
     try {
-      const theme = String(req.body.theme || '').trim().toLowerCase().slice(0, 40);
-      const q = String(req.body.q || '').trim().slice(0, 500);
-      const rep = Array.isArray(req.body.rep) ? req.body.rep.map(String).slice(0, 6) : [];
-      const correct = Number.parseInt(req.body.correct, 10);
-      const exp = String(req.body.exp || '').trim().slice(0, 1000);
-      const source = String(req.body.source || '').trim().slice(0, 200) || null;
-
-      if (!theme || theme.length < 2) {
-        return res.status(400).json({ erreur: 'Thème requis (2 caractères minimum).' });
-      }
-      if (!q || q.length < 5) {
-        return res.status(400).json({ erreur: 'Question requise (5 caractères minimum).' });
-      }
-      if (rep.length < 2 || rep.length > 6) {
-        return res.status(400).json({ erreur: 'Il faut entre 2 et 6 réponses.' });
-      }
-      if (!Number.isInteger(correct) || correct < 0 || correct >= rep.length) {
-        return res.status(400).json({ erreur: 'Index de bonne réponse invalide.' });
-      }
+      const cleaned = cleanQuestion(req.body || {});
 
       const question = {
         id: 'c' + require('crypto').randomUUID().slice(0, 8),
-        theme,
-        q,
-        rep,
-        correct,
-        exp,
-        source,
-        verified: !!source,
+        ...cleaned,
         createdAt: new Date().toISOString()
       };
 
@@ -186,7 +170,7 @@ function createRoutes(repo) {
   });
 
   /* DELETE /api/admin/questions/:id */
-  router.delete('/questions/:id', authUser, authAdmin, (req, res) => {
+  router.delete('/questions/:id', requireAuth, authAdmin, (req, res) => {
     const removed = repo.removeQuestion(req.params.id);
     if (!removed) {
       return res.status(404).json({ erreur: 'Question introuvable (seules les questions ajoutées peuvent être supprimées).' });

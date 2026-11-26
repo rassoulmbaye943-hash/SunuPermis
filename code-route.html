@@ -32,7 +32,7 @@
 
 <section class="section">
   <div class="container">
-    <div class="sign-overview" id="signOverview" aria-label="Répartition des panneaux">
+    <div class="sign-overview" id="signOverview" role="group" aria-label="Répartition des panneaux">
       <div class="sign-overview-card"><strong id="totalSigns">176</strong><span>panneaux uniques</span></div>
       <div class="sign-overview-card"><strong id="dangerCount">0</strong><span>dangers</span></div>
       <div class="sign-overview-card"><strong id="interdictionCount">0</strong><span>interdictions</span></div>
@@ -54,13 +54,13 @@
     </div>
     <div class="flex-between" style="margin-bottom:10px;flex-wrap:wrap;gap:12px;">
       <div class="tabs" id="catTabs" style="margin-bottom:0;">
-        <button class="tab-btn active" data-cat="tous">Tous</button>
-        <button class="tab-btn" data-cat="danger">Danger</button>
-        <button class="tab-btn" data-cat="interdiction">Interdiction</button>
-        <button class="tab-btn" data-cat="obligation">Obligation</button>
-        <button class="tab-btn" data-cat="priorite">Priorité</button>
-        <button class="tab-btn" data-cat="indication">Indication</button>
-        <button class="tab-btn" data-cat="stationnement">Arrêt / stationnement</button>
+        <button type="button" class="tab-btn active" data-cat="tous" aria-pressed="true">Tous</button>
+        <button type="button" class="tab-btn" data-cat="danger" aria-pressed="false">Danger</button>
+        <button type="button" class="tab-btn" data-cat="interdiction" aria-pressed="false">Interdiction</button>
+        <button type="button" class="tab-btn" data-cat="obligation" aria-pressed="false">Obligation</button>
+        <button type="button" class="tab-btn" data-cat="priorite" aria-pressed="false">Priorité</button>
+        <button type="button" class="tab-btn" data-cat="indication" aria-pressed="false">Indication</button>
+        <button type="button" class="tab-btn" data-cat="stationnement" aria-pressed="false">Arrêt / stationnement</button>
       </div>
       <a href="priorites.html" class="btn btn-outline btn-sm">🚦 Simulateur de priorités interactif</a>
     </div>
@@ -149,8 +149,11 @@ function renderSigns(cat, query){
 }
 document.getElementById('catTabs').addEventListener('click', function(e){
   var btn = e.target.closest('.tab-btn'); if(!btn) return;
-  document.querySelectorAll('#catTabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
+  document.querySelectorAll('#catTabs .tab-btn').forEach(function(b){
+    var active = b === btn;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
   document.getElementById('signSearch').value='';
   renderSigns(btn.getAttribute('data-cat'),'');
 });
@@ -165,7 +168,7 @@ function openSign(id){
     {q:'Que dois-tu faire face à ce panneau : « '+p.nom+' » ?', good:p.comportement}
   ];
   document.getElementById('signModalContent').innerHTML =
-    '<button class="modal-close" id="closeSign">×</button>'+
+    '<button type="button" class="modal-close" id="closeSign" aria-label="Fermer la fiche du panneau">×</button>'+
     '<div class="center" style="margin-bottom:10px;">'+spSignSVG(p,140)+'</div>'+stationDetails(p)+
     '<div class="sign-modal-code">'+esc(p.code)+' · page '+esc(p.page)+'</div>'+
     '<h3 class="center" id="signModalTitle">'+esc(p.nom)+'</h3>'+
@@ -188,9 +191,18 @@ document.addEventListener('click', function(e){
   if(e.target.id==='closeSign' || e.target.id==='signModal') closeSign();
 });
 function closeSign(){ document.getElementById('signModal').classList.remove('open'); if(lastFocusedTile) lastFocusedTile.focus(); }
-document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('signModal').classList.contains('open')) closeSign(); });
+document.addEventListener('keydown', function(e){
+  var modal = document.getElementById('signModal');
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') { closeSign(); return; }
+  if (e.key === 'Tab') {
+    var close = document.getElementById('closeSign');
+    if (close) { e.preventDefault(); close.focus(); }
+  }
+});
 </script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 </main>
 <div id="sp-footer-placeholder"></div>
     <script>

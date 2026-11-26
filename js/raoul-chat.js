@@ -22,17 +22,17 @@
   var wrap = document.createElement('div');
   wrap.id = 'raoulWidget';
   wrap.innerHTML =
-    '<div class="raoul-toggle" id="raoulToggle" aria-label="Discuter avec Raoul, l\'assistant SunuPermis" aria-expanded="false">' +
+    '<button type="button" class="raoul-toggle" id="raoulToggle" aria-label="Discuter avec Raoul, l\'assistant SunuPermis" aria-controls="raoulPanel" aria-haspopup="dialog" aria-expanded="false">' +
     '<span class="raoul-toggle-label">Discuter avec Raoul</span>' +
     '<svg class="raoul-toggle-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/><polyline points="18,14 6,14 6,6"/></svg>' +
-    '</div>' +
-    '<div class="raoul-panel" id="raoulPanel" hidden>' +
+    '</button>' +
+    '<div class="raoul-panel" id="raoulPanel" role="dialog" aria-labelledby="raoulTitle" hidden>' +
     '<div class="raoul-header">' +
     '<span class="raoul-avatar" aria-hidden="true">R</span>' +
-    '<div><div class="raoul-title">Raoul</div><div class="raoul-sub">Assistant SunuPermis</div></div>' +
-    '<button class="raoul-close" id="raoulClose" aria-label="Fermer la discussion">✕</button>' +
+    '<div><div class="raoul-title" id="raoulTitle">Raoul</div><div class="raoul-sub">Assistant SunuPermis</div></div>' +
+    '<button type="button" class="raoul-close" id="raoulClose" aria-label="Fermer la discussion">✕</button>' +
     '</div>' +
-    '<div class="raoul-messages" id="raoulMessages"></div>' +
+    '<div class="raoul-messages" id="raoulMessages" role="log" aria-live="polite" aria-relevant="additions"></div>' +
     '<div class="raoul-typing" id="raoulTyping" hidden><span></span><span></span><span></span><span>Raoul \u00e9crit\u2026</span></div>' +
     '<div class="raoul-composer">' +
     '<input id="raoulInput" type="text" placeholder="Pose ta question \u00e0 Raoul\u2026" aria-label="Message pour Raoul" />' +
@@ -115,10 +115,14 @@
     panel.hidden = true;
     ouvert = false;
     toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus();
   }
 
   toggle.addEventListener('click', function () { ouvert ? fermer() : ouvrir(); });
   boutonFermer.addEventListener('click', fermer);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && ouvert) fermer();
+  });
 
   async function envoyerUtilisateur(texte) {
     if (!texte || !texte.trim()) return;

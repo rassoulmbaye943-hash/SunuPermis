@@ -34,26 +34,41 @@
 <section class="section">
   <div class="container">
     <div class="tabs" id="themeTabs" role="tablist" aria-label="Thèmes du quiz"></div>
-    <div class="quiz-shell" id="quizArea"></div>
+    <div class="quiz-shell" id="quizArea" role="tabpanel" tabindex="0" aria-live="polite" aria-labelledby="theme-tab-tous"></div>
   </div>
 </section>
 
 <script src="js/data.js"></script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 <script src="js/quiz.js"></script>
 <script>
 var themes = ['tous','panneaux','priorites','vitesse','securite','depassement','stationnement','feux','comportement','manoeuvres','autoroute'];
 var labels = {tous:'Tous les thèmes',panneaux:'Panneaux',priorites:'Priorités',vitesse:'Vitesse',securite:'Sécurité',depassement:'Dépassement',stationnement:'Stationnement',feux:'Feux et marquage',comportement:'Comportement / permis',manoeuvres:'Manœuvres',autoroute:'Autoroute'};
 document.getElementById('themeTabs').innerHTML = themes.map(function(t,i){
   var n=QUIZ_BANK.filter(function(q){return t==='tous'||q.theme===t;}).length;
-  return '<button class="tab-btn'+(i===0?' active':'')+'" role="tab" aria-selected="'+(i===0?'true':'false')+'" data-t="'+t+'"><span>'+labels[t]+'</span><small>'+n+'</small></button>';
+  return '<button type="button" id="theme-tab-'+t+'" class="tab-btn'+(i===0?' active':'')+'" role="tab" aria-controls="quizArea" aria-selected="'+(i===0?'true':'false')+'" tabindex="'+(i===0?'0':'-1')+'" data-t="'+t+'"><span>'+labels[t]+'</span><small>'+n+'</small></button>';
 }).join('');
 document.getElementById('themeTabs').addEventListener('click', function(e){
   var b = e.target.closest('.tab-btn'); if(!b) return;
-  document.querySelectorAll('#themeTabs .tab-btn').forEach(function(x){x.classList.remove('active');});
-  b.classList.add('active');
-  document.querySelectorAll('#themeTabs .tab-btn').forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false');});
+  document.querySelectorAll('#themeTabs .tab-btn').forEach(function(x){
+    var active = x === b;
+    x.classList.toggle('active', active);
+    x.setAttribute('aria-selected', active ? 'true' : 'false');
+    x.tabIndex = active ? 0 : -1;
+  });
+  document.getElementById('quizArea').setAttribute('aria-labelledby', b.id);
   SPQuiz.start(b.dataset.t, 10);
+});
+document.getElementById('themeTabs').addEventListener('keydown', function(e){
+  var current = e.target.closest('[role=tab]'); if (!current) return;
+  var buttons = Array.from(document.querySelectorAll('#themeTabs [role=tab]'));
+  var i = buttons.indexOf(current), next = null;
+  if (e.key === 'ArrowRight') next = buttons[(i + 1) % buttons.length];
+  else if (e.key === 'ArrowLeft') next = buttons[(i - 1 + buttons.length) % buttons.length];
+  else if (e.key === 'Home') next = buttons[0];
+  else if (e.key === 'End') next = buttons[buttons.length - 1];
+  if (next) { e.preventDefault(); next.focus(); next.click(); }
 });
 SPQuiz.start('tous', 10);
 if(window.SPProgress){var q=SPProgress.load();if(q&&q.quizScores.length){var last=q.quizScores[q.quizScores.length-1];document.getElementById('quizStats').innerHTML='<span class="badge badge-verified">Dernier score : '+last.score+'/'+last.total+'</span><span class="badge">'+q.quizScores.length+' quiz réalisés</span>';}}

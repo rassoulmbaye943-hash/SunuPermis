@@ -11,7 +11,10 @@
 </head>
 <body>
 <script src="js/layout.js"></script>
+<script src="js/api.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 <div id="sp-header-placeholder"></div>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -29,32 +32,32 @@
   </section>
 
   <!-- // Programme serveur -------- -->
-  <div id="serverStatus" class="server-status"><span class="dot"></span>Serveur accessible</div>
+  <div id="serverStatus" class="server-status" role="status" aria-live="polite"><span class="dot"></span>Serveur accessible</div>
 
   <section class="section">
     <div class="container">
-      <div class="tabs center" style="justify-content:center;" id="authTabs">
-        <button class="tab-btn active" data-t="login">Connexion</button>
-        <button class="tab-btn" data-t="signup">Inscription</button>
+      <div class="tabs center" style="justify-content:center;" id="authTabs" role="tablist" aria-label="Accès au compte">
+        <button type="button" id="login-tab" class="tab-btn active" role="tab" aria-controls="pane-login" aria-selected="true" tabindex="0" data-t="login">Connexion</button>
+        <button type="button" id="signup-tab" class="tab-btn" role="tab" aria-controls="pane-signup" aria-selected="false" tabindex="-1" data-t="signup">Inscription</button>
       </div>
 
-      <div id="pane-login" class="auth-card">
+      <div id="pane-login" class="auth-card" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
         <h3>Se connecter</h3>
         <p class="form-msg" id="loginMsg" role="alert"></p>
-        <form id="loginForm" novalidate>
+        <form id="loginForm">
           <div class="field"><label for="loginEmail">Adresse e-mail</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="toi@exemple.com"></div>
           <div class="field"><label for="loginPassword">Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••"></div>
           <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Se connecter</button>
         </form>
       </div>
 
-      <div id="pane-signup" class="auth-card" style="display:none;">
+      <div id="pane-signup" class="auth-card" role="tabpanel" aria-labelledby="signup-tab" tabindex="0" style="display:none;">
         <h3>Créer un compte</h3>
         <p class="form-msg" id="signupMsg" role="alert"></p>
-        <form id="signupForm" novalidate>
+        <form id="signupForm">
           <div class="field"><label for="signupName">Nom complet</label><input id="signupName" required placeholder="Ex. Awa Ndiaye"></div>
           <div class="field"><label for="signupEmail">Adresse e-mail</label><input id="signupEmail" type="email" required autocomplete="email"></div>
-          <div class="field"><label>Objectif de permis</label>
+          <div class="field"><label for="signupObjective">Objectif de permis</label>
             <select id="signupObjective"><option>Voiture (B)</option><option>Moto (A)</option><option>Poids lourd (C)</option><option>Transport en commun (D)</option></select>
           </div>
           <div class="field"><label for="signupPassword">Mot de passe (min. 8 caractères)</label><input id="signupPassword" type="password" required minlength="8" autocomplete="new-password"></div>
@@ -79,7 +82,7 @@
             <h4>Inscrit le : <span id="profileCreated"></span></h4>
             <form id="editForm" class="admin-form" style="margin-top:12px;">
               <div class="field"><label for="editName">Nom complet</label><input id="editName" type="text"></div>
-              <div class="field"><label>Objectif de permis</label>
+              <div class="field"><label for="editObjective">Objectif de permis</label>
                 <select id="editObjective"><option>Voiture (B)</option><option>Moto (A)</option><option>Poids lourd (C)</option><option>Transport en commun (D)</option></select>
               </div>
               <button class="btn btn-primary btn-sm" type="submit">Mettre à jour</button>
@@ -100,16 +103,6 @@
           <form id="pwdForm" class="admin-form">
             <div class="field"><label for="pwdCurrent">Mot de passe actuel</label><input id="pwdCurrent" type="password" autocomplete="current-password"></div>
             <div class="field"><label for="pwdNew">Nouveau mot de passe (min. 8)</label><input id="pwdNew" type="password" minlength="8" autocomplete="new-password"></div>
-      <div id="sp-footer-placeholder"></div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        injectFooter();
-      });
-    </script>
-    <script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { }); }); }</script>
-  <script src="js/raoul-chat.js"></script>
-</body>
-</html>
             <button class="btn btn-primary btn-sm" type="submit">Changer le mot de passe</button>
             <p class="form-msg" id="pwdMsg" role="alert"></p>
           </form>
@@ -132,6 +125,7 @@
           <div class="chip-row" id="badgeRow"></div>
           <h3 style="margin-top:24px;">Historique (scores, examens)</h3>
           <table id="historyTable">
+            <caption class="sr-only">Historique des scores de quiz et d’examens</caption>
             <thead><tr><th>Type</th><th>Score</th><th>Date</th></tr></thead>
             <tbody id="historyBody"></tbody>
           </table>
@@ -145,7 +139,7 @@
           'use strict';
           var api = window.__SP_API;
           var el = function (id) { return document.getElementById(id); };
-          function $(s) { return document.querySelector(s); }
+          function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
 
           var loginForm = el('loginForm');
           var signupForm = el('signupForm');
@@ -158,6 +152,8 @@
           var editForm = el('editForm');
           var pwdForm = el('pwdForm');
           var delForm = el('delForm');
+          var pwdMsg = el('pwdMsg');
+          var delMsg = el('delMsg');
           var accountMsg = el('accountMsg');
           var badgeRow = el('badgeRow');
           var historyBody = el('historyBody');
@@ -201,7 +197,7 @@
           var guard = function (fn) {
             return function () {
               if (!api || !api.online()) {
-                showMsg(loginMsg && loginMsg !== signupMsg ? loginMsg : signupMsg, 'Le serveur n\'est pas joignable. Démarrez le backend (node server/server.js).', 'err');
+                showMsg(loginMsg && loginMsg !== signupMsg ? loginMsg : signupMsg, 'Le serveur n\'est pas joignable. Démarre le backend avec « npm start ».', 'err');
                 return;
               }
               return fn.apply(this, arguments);
@@ -277,14 +273,25 @@
           // --- Raccourci de navigation ---
           $$('#authTabs .tab-btn').forEach(function (b) {
             b.addEventListener('click', function () {
-              $$('#authTabs .tab-btn').forEach(function (x) { x.classList.remove('active'); });
-              b.classList.add('active');
-              var pane = el('pane-' + b.dataset.t);
-              ['pane-login', 'pane-signup', 'pane-account'].forEach(function (p) {
-                var other = el(p);
-                if (other && p !== 'pane-' + b.dataset.t) other.style.display = 'none';
+              $$('#authTabs .tab-btn').forEach(function (x) {
+                var active = x === b;
+                x.classList.toggle('active', active);
+                x.setAttribute('aria-selected', active ? 'true' : 'false');
+                x.tabIndex = active ? 0 : -1;
+              });
+              ['pane-login', 'pane-signup'].forEach(function (id) {
+                var panel = el(id);
+                var active = id === 'pane-' + b.dataset.t;
+                panel.style.display = active ? 'block' : 'none';
+                panel.setAttribute('aria-hidden', active ? 'false' : 'true');
               });
             });
+          });
+          el('authTabs').addEventListener('keydown', function (e) {
+            var current = e.target.closest('[role=tab]'); if (!current) return;
+            var buttons = Array.from(el('authTabs').querySelectorAll('[role=tab]'));
+            var next = buttons[buttons.indexOf(current) === 0 ? 1 : 0];
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); next.focus(); next.click(); }
           });
 
           // --- Compte ---
@@ -370,7 +377,6 @@
           updateStatus(api.online());
         })();
       </script>
-    <script src="js/api.js"></script>
     <div id="sp-footer-placeholder"></div>
     <script>
       document.addEventListener("DOMContentLoaded", function() {

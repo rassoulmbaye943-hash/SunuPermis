@@ -33,33 +33,64 @@
   <div class="container grid grid-3" id="manoeuvreGrid"></div>
 </section>
 
-<div class="modal-backdrop" id="manModal"><div class="modal" id="manModalContent"></div></div>
+<div class="modal-backdrop" id="manModal" aria-hidden="true"><div class="modal" id="manModalContent" role="dialog" aria-modal="true" aria-labelledby="manModalTitle"></div></div>
 
 <script src="js/data.js"></script>
 <script>
 document.getElementById('manoeuvreGrid').innerHTML = MANOEUVRES.map(function(m){
-  return '<div class="card card-flag" data-id="'+m.id+'" style="cursor:pointer;">'+
+  return '<article class="card card-flag" data-id="'+m.id+'" tabindex="0" role="button" aria-haspopup="dialog" style="cursor:pointer;">'+
     '<h3>'+m.nom+'</h3><p>'+m.desc+'</p>'+
-    '<span class="link-arrow">Voir les étapes →</span></div>';
+    '<span class="link-arrow">Voir les étapes →</span></article>';
 }).join('');
 
-document.getElementById('manoeuvreGrid').addEventListener('click', function(e){
-  var c = e.target.closest('[data-id]'); if(!c) return;
-  var m = MANOEUVRES.filter(function(x){return x.id===c.dataset.id;})[0];
+var lastManoeuvreTrigger = null;
+function openManoeuvre(card) {
+  var m = MANOEUVRES.filter(function(x){return x.id===card.dataset.id;})[0];
+  if (!m) return;
+  lastManoeuvreTrigger = card;
   document.getElementById('manModalContent').innerHTML =
-    '<button class="modal-close" id="closeMan">×</button>'+
-    '<h3>'+m.nom+'</h3><p>'+m.desc+'</p>'+
-    '<h4 style="margin-top:18px;">Étapes</h4><ol class="steps">'+m.etapes.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol>'+
-    '<h4 style="margin-top:18px;">Erreurs fréquentes</h4><ul>'+m.erreurs.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ul>'+
+    '<button type="button" class="modal-close" id="closeMan" aria-label="Fermer les détails de la manœuvre">×</button>'+
+    '<h2 id="manModalTitle">'+m.nom+'</h2><p>'+m.desc+'</p>'+
+    '<h3 style="margin-top:18px;">Étapes</h3><ol class="steps">'+m.etapes.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol>'+
+    '<h3 style="margin-top:18px;">Erreurs fréquentes</h3><ul>'+m.erreurs.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ul>'+
     '<a href="quiz.html" class="btn btn-outline btn-sm" style="margin-top:14px;">Tester mes connaissances</a>';
-  document.getElementById('manModal').classList.add('open');
+  var modal = document.getElementById('manModal');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  var close = document.getElementById('closeMan'); if (close) close.focus();
   if(window.SPProgress) SPProgress.markLessonSeen('manoeuvres:'+m.id);
+}
+document.getElementById('manoeuvreGrid').addEventListener('click', function(e){
+  var c = e.target.closest('[data-id]'); if(c) openManoeuvre(c);
 });
+document.getElementById('manoeuvreGrid').addEventListener('keydown', function(e){
+  var c = e.target.closest('[data-id]');
+  if(c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openManoeuvre(c); }
+});
+function closeManoeuvre() {
+  var modal = document.getElementById('manModal');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (lastManoeuvreTrigger) lastManoeuvreTrigger.focus();
+}
 document.addEventListener('click', function(e){
-  if(e.target.id==='closeMan'||e.target.id==='manModal') document.getElementById('manModal').classList.remove('open');
+  if(e.target.id === 'closeMan' || e.target.id === 'manModal') closeManoeuvre();
+});
+document.addEventListener('keydown', function(e){
+  var modal = document.getElementById('manModal');
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') { closeManoeuvre(); return; }
+  if (e.key === 'Tab') {
+    var focusables = Array.from(modal.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
+    if (!focusables.length) { e.preventDefault(); return; }
+    var first = focusables[0], last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
 });
 </script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 </main>
 <div id="sp-footer-placeholder"></div>
     <script>

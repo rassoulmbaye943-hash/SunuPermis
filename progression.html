@@ -35,11 +35,11 @@
     <div class="divider"></div>
     <div class="grid grid-2">
       <div class="card">
-        <h3>Avancement par catégorie</h3>
+        <h2>Avancement par catégorie</h2>
         <div id="progBars" style="display:flex;flex-direction:column;gap:14px;margin-top:12px;"></div>
       </div>
       <div class="card">
-        <h3>Badges</h3>
+        <h2>Badges</h2>
         <div class="chip-row" id="badgeRow"></div>
         <h3 style="margin-top:24px;">Série de jours actifs</h3>
         <p id="streakText"></p>
@@ -47,8 +47,8 @@
     </div>
     <div class="divider"></div>
     <div class="card">
-      <h3>Historique des examens</h3>
-      <table id="examTable"><thead><tr><th>Examen</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody></tbody></table>
+      <h2 id="examHistoryHeading">Historique des examens</h2>
+      <table id="examTable" aria-labelledby="examHistoryHeading"><thead><tr><th>Examen</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="center" style="margin-top:30px;">
       <button class="btn btn-outline btn-sm" id="resetProgress">Réinitialiser mes données locales</button>
@@ -58,10 +58,12 @@
 
 <script src="js/data.js"></script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 <script>
 var BADGE_LABELS = {
   'premiers-pas':'🎯 Premiers pas', 'assidu':'📈 Assidu(e)', 'pret-pour-lexamen':'🏆 Prêt·e pour l’examen', 'serie-3-jours':'🔥 Série de 3 jours'
 };
+function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function renderDashboard(){
   var s = SPProgress.load();
   var quizCount = s.quizScores.length;
@@ -83,13 +85,13 @@ function renderDashboard(){
   spAnimateBars();
 
   document.getElementById('badgeRow').innerHTML = s.badges.length
-    ? s.badges.map(function(b){return '<span class="badge badge-verified">'+(BADGE_LABELS[b]||b)+'</span>';}).join('')
+    ? s.badges.map(function(b){return '<span class="badge badge-verified">'+(BADGE_LABELS[b]||escapeHtml(b))+'</span>';}).join('')
     : '<span class="badge">Pas encore de badge — commence un quiz !</span>';
   document.getElementById('streakText').textContent = s.streakDays.length + ' jour(s) d’activité enregistrés sur cet appareil.';
 
   var tbody = document.querySelector('#examTable tbody');
   tbody.innerHTML = s.examResults.slice().reverse().map(function(r){
-    return '<tr><td>'+r.id+'</td><td>'+r.score+' / '+r.total+'</td><td>'+Math.round(r.score/r.total*100)+' %</td><td>'+new Date(r.date).toLocaleDateString('fr-FR')+'</td></tr>';
+    return '<tr><td>'+escapeHtml(r.id)+'</td><td>'+r.score+' / '+r.total+'</td><td>'+Math.round(r.score/r.total*100)+' %</td><td>'+new Date(r.date).toLocaleDateString('fr-FR')+'</td></tr>';
   }).join('') || '<tr><td colspan="4">Aucun examen passé pour le moment.</td></tr>';
 }
 renderDashboard();

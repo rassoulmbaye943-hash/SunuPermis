@@ -40,11 +40,13 @@ var SPProgress = (function(){
     var s = load();
     s.quizScores.push({theme:theme, score:score, total:total, date:new Date().toISOString()});
     save(s); touchStreak(); checkBadges();
+    SPProgress._syncWithServer && SPProgress._syncWithServer();
   }
   function addExamResult(examId, score, total, weakThemes){
     var s = load();
     s.examResults.push({id:examId, score:score, total:total, weakThemes:weakThemes||[], date:new Date().toISOString()});
     save(s); touchStreak(); checkBadges();
+    SPProgress._syncWithServer && SPProgress._syncWithServer();
   }
   function touchStreak(){
     var s = load();

@@ -40,7 +40,7 @@
           <button class="btn btn-outline btn-sm" id="resetCity">Réinitialiser</button>
         </div>
         <div class="senegal-map-wrap modern-map">
-          <svg viewBox="0 0 300 380" aria-label="Carte schématique du Sénégal avec villes interactives" role="img">
+          <svg viewBox="0 0 300 380" aria-label="Carte schématique du Sénégal avec villes interactives" role="group">
             <defs>
               <radialGradient id="mapGlow" cx="50%" cy="40%" r="70%">
                 <stop offset="0%" stop-color="var(--baobab-600,#256A59)" stop-opacity=".3" />
@@ -56,7 +56,7 @@
         </div>
         <p class="map-caption">Sélectionne un point. Les positions sont schématiques pour faciliter l’apprentissage.</p>
       </div>
-      <aside class="card city-panel" id="cityInfo">
+      <aside class="card city-panel" id="cityInfo" aria-live="polite" aria-atomic="true">
         <span class="badge">Repère local</span>
         <h2>Choisis une ville</h2>
         <p>Le conseil de circulation apparaîtra ici.</p>
@@ -91,6 +91,7 @@
     });
   }
   function selectCity(v) {
+    if (!v) return;
     selected = v.id;
     document.querySelectorAll('.city-dot-group,.city-list button').forEach(function(x) {
       x.classList.toggle('active', x.dataset.id === v.id);
@@ -103,14 +104,14 @@
     document.getElementById('cityInfo').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   document.getElementById('cityDots').innerHTML = VILLES.map(function(v) {
-    return '<g class="city-dot-group" data-id="' + v.id + '" tabindex="0" role="button" aria-label="Afficher les conseils pour ' + esc(v.nom) + '" style="cursor:pointer;">' +
+    return '<g class="city-dot-group" data-id="' + esc(v.id) + '" tabindex="0" role="button" aria-label="Afficher les conseils pour ' + esc(v.nom) + '" style="cursor:pointer;">' +
       '<circle class="city-dot-halo" cx="' + v.x + '" cy="' + v.y + '" r="11" />' +
       '<circle class="city-dot" cx="' + v.x + '" cy="' + v.y + '" r="7" />' +
       '<text x="' + (v.x + 11) + '" y="' + (v.y + 4) + '" font-size="10" font-weight="700" font-family="IBM Plex Sans" fill="var(--text,#16201C)">' + esc(v.nom) + '</text>' +
       '</g>';
   }).join('');
   document.getElementById('cityList').innerHTML = VILLES.map(function(v) {
-    return '<button class="city-list-item" data-id="' + v.id + '">' +
+    return '<button class="city-list-item" data-id="' + esc(v.id) + '">' +
       '<span class="city-pin">●</span>' +
       '<span><strong>' + esc(v.nom) + '</strong><small>Afficher le repère</small></span>' +
       '<span aria-hidden="true">→</span>' +

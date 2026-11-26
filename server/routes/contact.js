@@ -15,6 +15,7 @@ const { authAdmin } = require('../middleware/auth-admin');
 
 function createRoutes(repo) {
   const router = express.Router();
+  const requireAuth = authUser(repo);
 
   /* POST /api/contact */
   router.post('/', (_req, res) => {
@@ -50,7 +51,7 @@ function createRoutes(repo) {
   });
 
   /* GET /api/contact  (admin, protégé) */
-  router.get('/', authUser, authAdmin, (_req, res) => {
+  router.get('/', requireAuth, authAdmin, (_req, res) => {
     try {
       const liste = (repo.messages || []).slice().sort((a, b) => b.dateEnvoi.localeCompare(a.dateEnvoi));
       return res.json({ messages: liste });

@@ -28,6 +28,7 @@ const router = express.Router();
 // Le repository est injecté par le serveur principal pour partager la même instance.
 function createRoutes(repo, authLimiter) {
   const { hashPassword, verifyPassword, signToken, getJwtSecret, getTtlSeconds } = authService;
+  const requireAuth = authUser(repo);
 
   /* ---------- Helpers ---------- */
   function publicUser(u) {
@@ -89,6 +90,11 @@ function createRoutes(repo, authLimiter) {
       const password = cleanPassword(req.body.password);
       const objective = cleanObjective(req.body.objective);
 
+      const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+      if (adminEmail && email === adminEmail) {
+        return res.status(409).json({ erreur: 'Cette adresse e-mail est réservée à l’administrateur.' });
+      }
+
       if (repo.findUserByEmail(email)) {
         return res.status(409).json({ erreur: 'Un compte existe déjà avec cet e-mail.' });
       }
@@ -96,16 +102,13 @@ function createRoutes(repo, authLimiter) {
         return res.status(409).json({ erreur: 'Un compte existe déjà avec cet e-mail.' });
       }
 
-      const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
-      const role = adminEmail && email === adminEmail ? 'admin' : 'user';
-
       const passwordHash = await hashPassword(password);
       const user = {
         id: repo.createId ? repo.createId() : crypto.randomUUID(),
         name,
         email,
         objective,
-        role,
+        role: 'user',
         passwordHash,
         createdAt: new Date().toISOString()
       };
@@ -138,14 +141,7 @@ function createRoutes(repo, authLimiter) {
         return res.status(401).json({ erreur: 'E-mail ou mot de passe incorrect.' });
       }
 
-      let finalRole = user.role;
-      const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
-      if (adminEmail && email === adminEmail && finalRole !== 'admin') {
-        finalRole = 'admin';
-        repo.updateUser(user.id, { role: 'admin' });
-      }
-
-      const tokenUser = Object.assign({}, user, { role: finalRole });
+      const tokenUser = Object.assign({}, user, { role: user.role || 'user' });
       return res.status(200).json({
         token: issueToken(tokenUser),
         user: publicUser(tokenUser),
@@ -162,7 +158,7 @@ function createRoutes(repo, authLimiter) {
   });
 
   /* ---------- Profil (authentifié) ---------- */
-  router.get('/me', authUser, (req, res) => {
+  router.get('/me', requireAuth, (req, res) => {
     const user = repo.findUserById(req.user.id);
     if (!user) {
       return res.status(401).json({ erreur: 'Compte introuvable.' });
@@ -170,7 +166,7 @@ function createRoutes(repo, authLimiter) {
     return res.status(200).json({ user: publicUser(user) });
   });
 
-  router.patch('/me', authUser, requireBody, async (req, res) => {
+  router.patch('/me', requireAuth, requireBody, async (req, res) => {
     try {
       const user = repo.findUserById(req.user.id);
       if (!user) {
@@ -186,7 +182,7 @@ function createRoutes(repo, authLimiter) {
     }
   });
 
-  router.post('/me/password', authUser, authLimiter, requireBody, async (req, res) => {
+  router.post('/me/password', requireAuth, authLimiter, requireBody, async (req, res) => {
     try {
       const user = repo.findUserById(req.user.id);
       if (!user || !user.passwordHash) {
@@ -205,7 +201,7 @@ function createRoutes(repo, authLimiter) {
     }
   });
 
-  router.delete('/me', authUser, authLimiter, requireBody, async (req, res) => {
+  router.delete('/me', requireAuth, authLimiter, requireBody, async (req, res) => {
     try {
       const user = repo.findUserById(req.user.id);
       if (!user || !user.passwordHash) {

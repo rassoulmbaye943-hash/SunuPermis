@@ -15,6 +15,7 @@ const { authUser } = require('../middleware/auth-user');
 
 function createRoutes(repo) {
   const router = express.Router();
+  const requireAuth = authUser(repo);
 
   /**
    * Nettoyage de la progression utilisateur.
@@ -61,7 +62,7 @@ function createRoutes(repo) {
   }
 
   /* GET /api/progress */
-  router.get('/', authUser, (req, res) => {
+  router.get('/', requireAuth, (req, res) => {
     try {
       const progress = repo.getProgress(req.user.id) || {};
       return res.status(200).json({ progress: sanitizeProgress(progress) });
@@ -71,7 +72,7 @@ function createRoutes(repo) {
   });
 
   /* PUT /api/progress  (fusion avec l'existant, rien n'est écrasé) */
-  router.put('/', authUser, (req, res) => {
+  router.put('/', requireAuth, (req, res) => {
     try {
       const incoming = req.body && req.body.progress !== undefined ? req.body.progress : req.body;
       const merged = repo.mergeProgress(req.user.id, incoming);
@@ -82,7 +83,7 @@ function createRoutes(repo) {
   });
 
   /* DELETE /api/progress */
-  router.delete('/', authUser, (req, res) => {
+  router.delete('/', requireAuth, (req, res) => {
     try {
       repo.deleteProgress(req.user.id);
       return res.status(200).json({ message: 'Progression supprimée.' });

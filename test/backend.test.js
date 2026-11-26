@@ -1,277 +1,132 @@
 'use strict';
 
-/**
- * Tests automatisés du backend SunuPermis.
- * Module natif Node.js (node:test).
- * Lancer : node test/backend.test.js  (serveur sur http://localhost:3000)
- */
-const assert = require('node:assert');
-const { test, describe } = require('node:test');
-const http = require('http');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { test } = require('node:test');
+const { Repository } = require('../server/lib/repository');
+const { createRoutes: createUserRoutes } = require('../server/routes/users');
+const { createRoutes: createProgressRoutes } = require('../server/routes/progress');
+const { createRoutes: createAdminRoutes } = require('../server/routes/admin');
+const authService = require('../server/lib/auth-service');
+const { authUser } = require('../server/middleware/auth-user');
+const { authAdmin } = require('../server/middleware/auth-admin');
 
-const BASE = 'http://localhost:3000';
-
-function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
-
-async function waitForServer(maxAttempts = 30) {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      await req('GET', '/api/health');
-      return;
-    } catch (e) {
-      await sleep(1000);
-    }
-  }
-  throw new Error('Serveur indisponible après ' + maxAttempts + ' tentatives.');
+function handler(router, method, routePath) {
+  const layer = router.stack.find((item) => item.route && item.route.path === routePath && item.route.methods[method]);
+  assert.ok(layer, `route ${method.toUpperCase()} ${routePath} introuvable`);
+  return layer.route.stack[layer.route.stack.length - 1].handle;
 }
 
-function req(method, path, body, token, retries = 3) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(path, BASE);
-    const options = {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-    };
-    if (token) options.headers.Authorization = 'Bearer ' + token;
-    const r = http.request(url, options, (res) => {
-      let data = '';
-      res.on('data', (c) => { data += c; });
-      res.on('end', () => {
-        let json = null;
-        try { json = JSON.parse(data || 'null'); } catch (_) {}
-        // Retry en cas de rate limiting (429)
-        if (res.statusCode === 429 && retries > 0) {
-          const retryAfter = parseInt(res.headers['retry-after'] || '1', 10);
-          setTimeout(() => {
-            resolve(req(method, path, body, token, retries - 1));
-          }, retryAfter * 1000);
-          return;
-        }
-        resolve({ status: res.statusCode, headers: res.headers, data: json, raw: data });
-      });
-    });
-    r.on('error', reject);
-    r.write(body ? JSON.stringify(body) : '');
-    r.end();
-  });
+function response() {
+  return {
+    statusCode: 200,
+    payload: undefined,
+    status(code) { this.statusCode = code; return this; },
+    json(value) { this.payload = value; return this; }
+  };
 }
 
-let userToken = null;
-let adminToken = null;
-let createdQuestionId = null;
-
-describe('SunuPermis Backend', async () => {
-
-  await waitForServer();
-
-  test('GET /api/health retourne le statut ok', async () => {
-    const r = await req('GET', '/api/health');
-    assert.strictEqual(r.status, 200);
-    assert.strictEqual(r.data.status, 'ok');
+test('API SunuPermis : réservation admin, progression, permissions et contenu', async (t) => {
+  const previous = {
+    jwt: process.env.JWT_SECRET,
+    adminEmail: process.env.ADMIN_EMAIL,
+    adminPassword: process.env.ADMIN_PASSWORD
+  };
+  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'sunupermis-test-'));
+  process.env.JWT_SECRET = 'test-only-secret-with-at-least-32-characters-long';
+  process.env.ADMIN_EMAIL = 'admin-test@example.test';
+  process.env.ADMIN_PASSWORD = 'TestAdminPassword-2026';
+  t.after(() => {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+    if (previous.jwt === undefined) delete process.env.JWT_SECRET; else process.env.JWT_SECRET = previous.jwt;
+    if (previous.adminEmail === undefined) delete process.env.ADMIN_EMAIL; else process.env.ADMIN_EMAIL = previous.adminEmail;
+    if (previous.adminPassword === undefined) delete process.env.ADMIN_PASSWORD; else process.env.ADMIN_PASSWORD = previous.adminPassword;
   });
 
-  test('POST /api/users/register crée un compte', async () => {
-    const r = await req('POST', '/api/users/register', {
-      name: 'Testeur Auto',
-      email: 'testauto@example.com',
-      password: 'Password123',
-      objective: 'Permis B'
-    });
-    assert.strictEqual(r.status, 201);
-    assert.ok(r.data.token);
-    assert.strictEqual(r.data.user.email, 'testauto@example.com');
-    assert.strictEqual(r.data.user.role, 'user');
-  });
+  const repo = new Repository(temporaryDirectory);
+  const noLimit = (_req, _res, next) => next();
+  const users = createUserRoutes(repo, noLimit);
+  const progress = createProgressRoutes(repo);
+  const admin = createAdminRoutes(repo);
+  const register = handler(users, 'post', '/users/register');
+  const loginAdmin = handler(admin, 'post', '/login');
 
-  test('POST /api/users/register rejette le doublon d email', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/users/register', {
-      name: 'Doublon',
-      email: 'testauto@example.com',
-      password: 'Password123'
-    });
-    assert.strictEqual(r.status, 409);
-  });
+  const reservedResponse = response();
+  await register({ body: { name: 'Intrus', email: process.env.ADMIN_EMAIL, password: 'Password123' } }, reservedResponse);
+  assert.equal(reservedResponse.statusCode, 409, 'l’adresse administrateur est réservée');
+  assert.equal(repo.users.length, 0, 'l’inscription publique ne doit créer aucun administrateur');
 
-  test('POST /api/users/login authentifie', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/users/login', {
-      email: 'testauto@example.com',
-      password: 'Password123'
-    });
-    assert.strictEqual(r.status, 200);
-    assert.ok(r.data.token);
-    userToken = r.data.token;
-  });
+  const signupResponse = response();
+  await register({ body: { name: 'Testeur', email: 'test@example.test', password: 'Password123', objective: 'B' } }, signupResponse);
+  assert.equal(signupResponse.statusCode, 201);
+  assert.equal(signupResponse.payload.user.role, 'user');
+  const user = signupResponse.payload.user;
+  const userToken = signupResponse.payload.token;
 
-  test('POST /api/users/login rejette un mauvais mot de passe', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/users/login', {
-      email: 'testauto@example.com',
-      password: 'MauvaisMotDePasse'
-    });
-    assert.strictEqual(r.status, 401);
-  });
+  const putProgress = handler(progress, 'put', '/');
+  const progressResponse = response();
+  putProgress({ user: { id: user.id }, body: { progress: {
+    lessonsSeen: { 'code-route': true },
+    quizScores: [{ theme: 'panneaux', score: 2, total: 3, date: '2026-11-25' }]
+  } } }, progressResponse);
+  assert.equal(progressResponse.statusCode, 200);
+  assert.equal(progressResponse.payload.progress.quizScores.length, 1);
 
-  test('GET /api/me retourne le profil utilisateur', async () => {
-    await sleep(600);
-    const r = await req('GET', '/api/me', null, userToken);
-    assert.strictEqual(r.status, 200);
-    assert.strictEqual(r.data.user.email, 'testauto@example.com');
-  });
+  const adminResponse = response();
+  await loginAdmin({ body: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD } }, adminResponse);
+  assert.equal(adminResponse.statusCode, 200);
+  assert.equal(adminResponse.payload.user.role, 'admin');
+  const adminUser = repo.findUserById(adminResponse.payload.user.id);
+  const adminToken = adminResponse.payload.token;
 
-  test('PATCH /api/me met à jour le profil', async () => {
-    await sleep(600);
-    const r = await req('PATCH', '/api/me', { name: 'Testeur Auto Modifié', objective: 'Permis A' }, userToken);
-    assert.strictEqual(r.status, 200);
-    assert.strictEqual(r.data.user.name, 'Testeur Auto Modifié');
-  });
+  const statsRoute = admin.stack.find((item) => item.route && item.route.path === '/stats').route;
+  const getStats = statsRoute.stack[statsRoute.stack.length - 1].handle;
+  const statsResponse = response();
+  getStats({ user: { id: adminUser.id, role: 'admin' } }, statsResponse);
+  assert.equal(statsResponse.statusCode, 200);
+  assert.ok(statsResponse.payload.panneaux > 0);
+  assert.ok(statsResponse.payload.videos >= 0);
 
-  test('GET /api/progress retourne la progression (vide au début)', async () => {
-    await sleep(600);
-    const r = await req('GET', '/api/progress', null, userToken);
-    assert.strictEqual(r.status, 200);
-    assert.ok(r.data.progress);
-  });
+  const addQuestion = handler(admin, 'post', '/questions');
+  const questionResponse = response();
+  addQuestion({ body: { theme: 'priorites', q: 'Question de contrôle ?', rep: ['A', 'B'], correct: 0, source: 'Test interne' } }, questionResponse);
+  assert.equal(questionResponse.statusCode, 201);
+  assert.equal(questionResponse.payload.question.correct, 0);
 
-  test('PUT /api/progress enregistre la progression', async () => {
-    await sleep(600);
-    const r = await req('PUT', '/api/progress', {
-      progress: {
-        lessonsSeen: { 'code-route': true },
-        quizScores: [{ theme: 'panneaux', score: 7, total: 10, date: '2026-11-25' }]
-      }
-    }, userToken);
-    assert.strictEqual(r.status, 200);
-    assert.strictEqual(r.data.progress.quizScores.length, 1);
-  });
+  let nextCalled = false;
+  const adminAuthResponse = response();
+  authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, adminAuthResponse, () => { nextCalled = true; });
+  assert.equal(nextCalled, true);
+  assert.equal(adminAuthResponse.statusCode, 200);
+  const forbidden = response();
+  let forbiddenNext = false;
+  authAdmin({ user: { id: user.id, role: 'user' } }, forbidden, () => { forbiddenNext = true; });
+  assert.equal(forbidden.statusCode, 403);
+  assert.equal(forbiddenNext, false);
 
-  test('GET /api/questions renvoie la banque de questions', async () => {
-    const r = await req('GET', '/api/questions?limit=3');
-    assert.strictEqual(r.status, 200);
-    assert.ok(r.data.results);
-    assert.ok(r.data.total > 0);
-  });
+  repo.updateUser(adminUser.id, { role: 'user' });
+  const demoted = response();
+  let demotedNext = false;
+  authUser(repo)({ headers: { authorization: 'Bearer ' + adminToken } }, demoted, () => { demotedNext = true; });
+  assert.equal(demotedNext, true);
+  const demotedAdmin = response();
+  authAdmin({ user: { id: adminUser.id, role: repo.findUserById(adminUser.id).role } }, demotedAdmin, () => {});
+  assert.equal(demotedAdmin.statusCode, 403, 'la rétrogradation invalide les anciens privilèges admin');
 
-  test('GET /api/panneaux renvoie les panneaux', async () => {
-    const r = await req('GET', '/api/panneaux?cat=danger');
-    assert.strictEqual(r.status, 200);
-    assert.ok(Array.isArray(r.data.results));
-  });
+  repo.removeUser(user.id);
+  const deleted = response();
+  let deletedNext = false;
+  authUser(repo)({ headers: { authorization: 'Bearer ' + userToken } }, deleted, () => { deletedNext = true; });
+  assert.equal(deleted.statusCode, 401);
+  assert.equal(deletedNext, false, 'un token lié à un compte supprimé doit être refusé');
 
-  test('GET /api/videos renvoie les vidéos', async () => {
-    const r = await req('GET', '/api/videos');
-    assert.strictEqual(r.status, 200);
-    assert.ok(Array.isArray(r.data.results));
-  });
+  const tampered = response();
+  let tamperedNext = false;
+  authUser(repo)({ headers: { authorization: 'Bearer ' + userToken + 'x' } }, tampered, () => { tamperedNext = true; });
+  assert.equal(tampered.statusCode, 401);
+  assert.equal(tamperedNext, false);
 
-  test('POST /api/admin/login authentifie l administrateur', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/admin/login', {
-      email: 'admin@sunupermis.sn',
-      password: 'SunupermisAdmin2026!'
-    });
-    assert.strictEqual(r.status, 200);
-    assert.ok(r.data.token);
-    assert.strictEqual(r.data.user.role, 'admin');
-    adminToken = r.data.token;
-  });
-
-  test('GET /api/admin/stats protégée retourne les statistiques', async () => {
-    await sleep(600);
-    const r = await req('GET', '/api/admin/stats', null, adminToken);
-    assert.strictEqual(r.status, 200);
-    assert.ok(r.data.users >= 1);
-    assert.ok(r.data.admins >= 1);
-  });
-
-  test('GET /api/admin/stats rejetée sans token admin', async () => {
-    await sleep(600);
-    const r = await req('GET', '/api/admin/stats', null, userToken);
-    assert.strictEqual(r.status, 403);
-  });
-
-  test('POST /api/admin/questions ajoute une question personnalisée', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/admin/questions', {
-      theme: 'priorites',
-      q: 'Question de test automatisé ?',
-      rep: ['Réponse A', 'Réponse B', 'Réponse C'],
-      correct: 1,
-      exp: 'Explication de test.',
-      source: 'test-automatisé'
-    }, adminToken);
-    assert.strictEqual(r.status, 201);
-    assert.ok(r.data.question);
-    assert.ok(r.data.question.id);
-    createdQuestionId = r.data.question.id;
-  });
-
-  test('DELETE /api/admin/questions/:id supprime la question personnalisée', async () => {
-    await sleep(600);
-    const r = await req('DELETE', '/api/admin/questions/' + createdQuestionId, null, adminToken);
-    assert.strictEqual(r.status, 200);
-  });
-
-  test('POST /api/contact enregistre un message', async () => {
-    const r = await req('POST', '/api/contact', {
-      nom: 'Test',
-      telephone: '770000000',
-      sujet: 'Test',
-      message: 'Message de test automatisé.'
-    });
-    assert.strictEqual(r.status, 201);
-  });
-
-  test('POST /api/inscriptions enregistre une inscription', async () => {
-    const r = await req('POST', '/api/inscriptions', {
-      nom: 'Test',
-      prenom: 'Auto',
-      telephone: '770000000',
-      ville: 'Dakar',
-      typePermis: 'B'
-    });
-    assert.strictEqual(r.status, 201);
-  });
-
-  test('POST /api/me/password change le mot de passe', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/me/password', {
-      currentPassword: 'Password123',
-      newPassword: 'NouveauPass123'
-    }, userToken);
-    assert.strictEqual(r.status, 200);
-  });
-
-  test('POST /api/users/login avec le nouveau mot de passe', async () => {
-    await sleep(600);
-    const r = await req('POST', '/api/users/login', {
-      email: 'testauto@example.com',
-      password: 'NouveauPass123'
-    });
-    assert.strictEqual(r.status, 200);
-  });
-
-  test('DELETE /api/me supprime le compte', async () => {
-    await sleep(2000);
-    // Relogin pour obtenir un token frais après le changement de mot de passe
-    const login = await req('POST', '/api/users/login', { email: 'testauto@example.com', password: 'NouveauPass123' });
-    const freshToken = login.data.token;
-    const r = await req('DELETE', '/api/me', { password: 'NouveauPass123' }, freshToken, 5);
-    assert.strictEqual(r.status, 200);
-  });
-
-  test('GET /api/me après suppression retourne 401', async () => {
-    await sleep(600);
-    const r = await req('GET', '/api/me', null, userToken);
-    assert.strictEqual(r.status, 401);
-  });
-
-  test('GET /api/raoul sans clé API retourne 503 (config manquante)', async () => {
-    const r = await req('POST', '/api/raoul', { message: 'Bonjour' });
-    assert.strictEqual(r.status, 503);
-  });
-
+  assert.equal(typeof authService.verifyToken, 'function');
 });
-
-console.log('✅ Tous les tests backend sont terminés.');

@@ -14,6 +14,7 @@
   </head>
   <body>
     <script src="js/layout.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
     <div id="sp-header-placeholder"></div>
     <script>
@@ -27,9 +28,9 @@
       <section class="admin-gate" id="adminGate">
         <h2>Espace d'administration</h2>
         <p class="source-note">
-          Seuls les comptes inscrits dans la variable d'environnement
-          <strong>ADMIN_EMAILS</strong> du serveur (ex. <em>admin@exemple.com</em>)
-          ont accès à cet espace. La liste des comptes est récupérée en direct
+          Seul le compte configuré dans la variable d'environnement
+          <strong>ADMIN_EMAIL</strong> du serveur (ex. <em>admin@exemple.com</em>)
+          a accès à cet espace. La liste des comptes est récupérée en direct
           depuis le serveur.
         </p>
         <form class="admin-form" id="adminLoginForm">
@@ -45,9 +46,8 @@
         </form>
         <p class="form-msg" id="adminLoginMsg" role="alert"></p>
         <p class="source-note warn" style="margin-top:14px;">
-          En phase de démonstration, le serveur accepte tout compte dont l'e-mail
-          figure dans <code>ADMIN_EMAILS</code>. Ajoutez une autre adresse et
-          redémarrez le serveur pour en créer une nouvelle.
+          L’accès est réservé au compte et au mot de passe définis côté serveur.
+          N’utilise pas les identifiants d’un compte utilisateur ordinaire.
         </p>
       </section>
 
@@ -62,6 +62,7 @@
           </p>
         </div>
         <div class="grid grid-4" id="statsGrid"></div>
+        <p id="quizExamLine" class="source-note center"></p>
         <div class="center" style="margin-top:20px;">
           <button class="btn btn-primary btn-sm" id="addQBtn">+ Ajouter une question</button>
         </div>
@@ -98,7 +99,7 @@
                 <textarea id="qText" rows="2" required placeholder="Énoncé de la question"></textarea>
               </div>
               <div class="field">
-                <label>Réponses (séparées par ";")</label>
+                <label for="qReps">Réponses (séparées par ";")</label>
                 <input id="qReps" placeholder="Réponse A;Réponse B;Réponse C" />
               </div>
               <div class="field">
@@ -181,8 +182,12 @@
         document.querySelectorAll('.admin-link').forEach(function (a) {
           a.addEventListener('click', function (e) {
             e.preventDefault();
-            ['dashboard','questions','panneaux','videos','utilisateurs'].forEach(function (p) {
-              document.getElementById('admin-' + p).style.display = p === a.dataset.p ? 'block' : 'none';
+            var viewMap = { dashboard: 'admin-dashboard', questions: 'admin-questions', panneaux: 'admin-panneaux', videos: 'admin-panneaux', utilisateurs: 'admin-utilisateurs' };
+            var target = document.getElementById(viewMap[a.dataset.p] || '');
+            if (!target) return;
+            ['admin-dashboard', 'admin-questions', 'admin-panneaux', 'admin-utilisateurs'].forEach(function (id) {
+              var view = document.getElementById(id);
+              if (view) view.style.display = view === target ? 'block' : 'none';
             });
             document.querySelectorAll('.admin-link').forEach(function (x) { x.classList.remove('active'); });
             a.classList.add('active');
@@ -190,7 +195,6 @@
         });
       });
     </script>
-    <script src="js/api.js"></script>
     <div id="sp-footer-placeholder"></div>
     <script>
       document.addEventListener("DOMContentLoaded", function() {

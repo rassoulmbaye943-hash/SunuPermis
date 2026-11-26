@@ -33,16 +33,16 @@
   <div class="container">
     <div id="examPicker" class="grid grid-3">
       <div class="card center">
-        <h3>Examen A</h3><p>20 questions mélangées, tous thèmes.</p>
-        <button class="btn btn-primary btn-block" onclick="startExam('A')">Démarrer</button>
+        <h2>Examen A</h2><p>20 questions mélangées, tous thèmes.</p>
+        <button class="btn btn-primary btn-block" onclick="startExam('A')" aria-label="Démarrer l’examen A">Démarrer</button>
       </div>
       <div class="card center">
-        <h3>Examen B</h3><p>20 questions, ordre différent à chaque tentative.</p>
-        <button class="btn btn-primary btn-block" onclick="startExam('B')">Démarrer</button>
+        <h2>Examen B</h2><p>20 questions, ordre différent à chaque tentative.</p>
+        <button class="btn btn-primary btn-block" onclick="startExam('B')" aria-label="Démarrer l’examen B">Démarrer</button>
       </div>
       <div class="card center">
-        <h3>Examen express</h3><p>10 questions pour une révision rapide.</p>
-        <button class="btn btn-outline btn-block" onclick="startExam('Express', 10)">Démarrer</button>
+        <h2>Examen express</h2><p>10 questions pour une révision rapide.</p>
+        <button class="btn btn-outline btn-block" onclick="startExam('Express', 10)" aria-label="Démarrer l’examen express">Démarrer</button>
       </div>
     </div>
     <div id="examRoot" style="margin-top:30px;"></div>
@@ -52,6 +52,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 <script src="js/exam.js"></script>
 <script>
 function startExam(id, size){

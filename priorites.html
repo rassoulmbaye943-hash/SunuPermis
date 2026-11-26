@@ -34,7 +34,7 @@
     <div class="card center">
       <div id="scenarioLabel" class="badge badge-accent" style="margin-bottom:14px;"></div>
       <div class="sim-stats" aria-live="polite"><span id="scenarioProgress">Scénario 1 / 8</span><span id="scenarioScore">Score : 0</span><span id="scenarioStreak">Série : 0</span></div>
-      <svg id="intersection" viewBox="0 0 300 300" role="img" aria-label="Carrefour interactif : choisir le véhicule prioritaire" style="width:100%;max-width:320px;margin:0 auto;">
+      <svg id="intersection" viewBox="0 0 300 300" role="group" aria-label="Carrefour interactif : choisir le véhicule prioritaire" style="width:100%;max-width:320px;margin:0 auto;">
         <rect width="300" height="300" fill="none"/>
         <rect x="0" y="120" width="300" height="60" fill="#DFDAC7"/>
         <rect x="120" y="0" width="60" height="300" fill="#DFDAC7"/>
@@ -53,8 +53,8 @@
           <rect x="20" y="136" width="50" height="28" rx="4" fill="#256A59"/>
         </g>
       </svg>
-      <p id="question" style="margin-top:16px;font-weight:600;"></p>
-      <p id="feedback" style="min-height:24px;"></p>
+      <p id="question" aria-live="polite" style="margin-top:16px;font-weight:600;"></p>
+      <p id="feedback" aria-live="polite" style="min-height:24px;"></p>
       <div class="sim-actions"><button class="btn btn-primary btn-sm" id="nextScenario" disabled>Scénario suivant</button><button class="btn btn-outline btn-sm" id="resetScenario">Recommencer</button></div>
     </div>
   </div>
@@ -102,7 +102,7 @@ function answerVehicle(v){
   answered=true;
   var ok = v.dataset.correct === 'true';
   if(ok){ score++; streak++; } else { streak=0; }
-  document.getElementById('feedback').innerHTML = (ok ? 'Correct — ' : 'Pas tout à fait — ') + document.getElementById('intersection').dataset.why;
+  document.getElementById('feedback').textContent = (ok ? 'Correct — ' : 'Pas tout à fait — ') + document.getElementById('intersection').dataset.why;
   document.getElementById('scenarioScore').textContent = 'Score : '+score;
   document.getElementById('scenarioStreak').textContent = 'Série : '+streak;
   document.querySelectorAll('.vehicle').forEach(function(x){ x.querySelector('rect').style.opacity = x===v ? 1 : .45; });
@@ -113,6 +113,7 @@ document.getElementById('resetScenario').addEventListener('click', function(){ i
 loadScenario();
 </script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 </main>
 <div id="sp-footer-placeholder"></div>
     <script>

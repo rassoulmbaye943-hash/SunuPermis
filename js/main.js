@@ -1,8 +1,16 @@
 /* SunuPermis — comportements communs à toutes les pages */
+function spWhenReady(callback) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", callback, { once: true });
+  } else {
+    callback();
+  }
+}
 (function () {
   // ---- Thème clair / sombre ----
   var root = document.documentElement;
-  var saved = localStorage.getItem("sp_theme");
+  var saved = null;
+  try { saved = localStorage.getItem("sp_theme"); } catch (e) { /* stockage indisponible */ }
   if (saved) root.setAttribute("data-theme", saved);
   else if (
     window.matchMedia &&
@@ -43,7 +51,10 @@
     var overlay = document.getElementById("navOverlay");
     var toggle = document.getElementById("navToggle");
     var status = document.getElementById("navStatus");
-    if (nav) nav.classList.toggle("open", opened);
+    if (nav) {
+      nav.classList.toggle("open", opened);
+      nav.inert = window.matchMedia("(max-width: 920px)").matches && !opened;
+    }
     document.body.classList.toggle("nav-open", opened);
     if (overlay) {
       overlay.hidden = !opened;
@@ -61,6 +72,14 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") setNavOpen(false);
+  });
+  window.addEventListener("resize", function () {
+    var nav = document.getElementById("mainNav");
+    if (nav) nav.inert = window.matchMedia("(max-width: 920px)").matches && !nav.classList.contains("open");
+  });
+  spWhenReady(function () {
+    var nav = document.getElementById("mainNav");
+    if (nav) nav.inert = window.matchMedia("(max-width: 920px)").matches && !nav.classList.contains("open");
   });
 
   window.addEventListener(
@@ -86,7 +105,7 @@
       var next = isDark ? "light" : "dark";
       if (next === "light") root.removeAttribute("data-theme");
       else root.setAttribute("data-theme", "dark");
-      localStorage.setItem("sp_theme", next === "light" ? "" : "dark");
+      try { localStorage.setItem("sp_theme", next === "light" ? "" : "dark"); } catch (e) { /* stockage indisponible */ }
       refreshThemeIcon();
     }
     if (e.target.closest("#navToggle")) {
@@ -115,7 +134,7 @@
   refreshThemeIcon();
 
   // ---- Surlignage du lien de nav actif ----
-  document.addEventListener("DOMContentLoaded", function () {
+  spWhenReady(function () {
     var here = location.pathname.split("/").pop() || "index.html";
     document.querySelectorAll(".main-nav a").forEach(function (a) {
       var href = a.getAttribute("href");
@@ -146,7 +165,7 @@ function spAnimateBars() {
       });
     });
 }
-document.addEventListener("DOMContentLoaded", spAnimateBars);
+spWhenReady(spAnimateBars);
 
 /* Jauge circulaire de score (SVG), utilisée par les résultats de quiz et d'examen */
 function spScoreRing(pct, size) {
@@ -219,7 +238,7 @@ function spAnimateScoreRing(container) {
 }
 
 /* Révélation douce au défilement pour les cartes et en-têtes de section */
-document.addEventListener("DOMContentLoaded", function () {
+spWhenReady(function () {
   if (!("IntersectionObserver" in window)) return;
   var targets = document.querySelectorAll(
     ".card, .choice-card, .stat-card, .video-card, .section-head, .quote-card, .journey-step, .faq-item, .price-card",
@@ -243,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+spWhenReady(function () {
   if (typeof SPProgress === "undefined") return;
   var hasBars = false;
   document.querySelectorAll("[data-progress-cat]").forEach(function (bar) {

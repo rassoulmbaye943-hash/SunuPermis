@@ -68,33 +68,6 @@ const { createRoutes: createContactRoutes } = require('./routes/contact');
 // ---------------------------------------------------------------------------
 const repo = new Repository(DATA_DIR);
 
-// Garantir l'existence du premier administrateur depuis la configuration .env.
-function ensureAdmin() {
-  const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
-  const adminPassword = String(process.env.ADMIN_PASSWORD || '');
-  if (!adminEmail || !adminPassword) return;
-  if (repo.findUserByEmail(adminEmail) || repo.findAdminByEmail(adminEmail)) return;
-  try {
-    const authService = require('./lib/auth-service');
-    (async () => {
-      const passwordHash = await authService.hashPassword(adminPassword);
-      repo.addUser({
-        id: require('crypto').randomUUID(),
-        name: 'Administrateur',
-        email: adminEmail,
-        objective: '',
-        role: 'admin',
-        passwordHash,
-        createdAt: new Date().toISOString()
-      });
-    })();
-  } catch (e) {
-    // Ignoré : l'admin sera créé à la première tentative de connexion.
-  }
-}
-
-ensureAdmin();
-
 // ---------------------------------------------------------------------------
 // En-têtes de sécurité de base (aucune dépendance supplémentaire).
 // ---------------------------------------------------------------------------

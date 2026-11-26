@@ -97,8 +97,11 @@
     if (!api) return Promise.resolve();
     return api.fetchProgress().then(function (serverState) {
       if (!serverState) return;
-      applyToStore(serverState);
-      if (SPProgress.refreshFromStore) SPProgress.refreshFromStore(serverState);
+      var merged = mergeProgress(SPProgress.load(), serverState);
+      return api.saveProgress(merged).then(function (savedState) {
+        applyToStore(savedState || merged);
+        if (SPProgress.refreshFromStore) SPProgress.refreshFromStore(savedState || merged);
+      });
     }).catch(function () { /* serveur injoignable : on garde les données locales */ });
   }
 
@@ -106,8 +109,10 @@
     if (api && api.logout) {
       api.logout().catch(function () { /* les données locales restent */ });
     }
-    localStorage.removeItem('sp_session');
-    localStorage.removeItem('sp_user');
+    try {
+      localStorage.removeItem('sp_session');
+      localStorage.removeItem('sp_user');
+    } catch (e) { /* stockage inaccessible : la déconnexion serveur reste effective */ }
   }
 
   // expose le sync comme _syncWithServer sur SPProgress (déjà attendu par progress.js)

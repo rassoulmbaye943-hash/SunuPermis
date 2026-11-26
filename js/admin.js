@@ -84,7 +84,7 @@
     var exams = STATE.stats.examsTaken || 0;
     var quizzes = STATE.stats.quizzesTaken || 0;
     el('quizExamLine').innerHTML =
-      'Quiz obtenus : ' + quizzes + ' · Examens blancs compilés : ' + exams;
+      'Quiz terminés : ' + quizzes + ' · Examens blancs terminés : ' + exams;
   }
 
   function renderQuestions(list) {
@@ -160,7 +160,7 @@
         el('qText').value = ''; el('qReps').value = ''; el('qCorrect').value = '0';
         el('qSource').value = ''; el('qVerified').checked = false;
         refreshQuestions();
-      } else { showToast('err', r.data && r.data.error ? r.data.error : 'Erreur'); }
+      } else { showToast('err', r.data && (r.data.erreur || r.data.error) ? (r.data.erreur || r.data.error) : 'Erreur'); }
     }).catch(function (err) { showToast('err', 'Serveur inaccessible : ' + err); }).finally(function () { setSubmitting(form, false); });
   }
 
@@ -253,7 +253,7 @@
       var password = el('adminPassword').value;
       if (!email || !password) { showToast('err', 'E-mail et mot de passe requis.'); return; }
       setSubmitting(alForm, true);
-      api.login(email, password).then(function (user) {
+      api.adminLogin(email, password).then(function (user) {
         showToast('ok', 'Bonjour ' + user.name + ' · espace administrateur.');
         setTimeout(function () { location.href = 'admin.html'; }, 500);
       }).catch(function (err) {

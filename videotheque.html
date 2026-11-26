@@ -37,11 +37,13 @@
       <label class="video-search"><span class="sr-only">Rechercher une vidéo</span><input id="videoSearch" type="search" placeholder="Rechercher : créneau, panneaux, sécurité…" autocomplete="off"></label>
     </div>
     <div class="tabs" id="vidTabs" role="tablist" aria-label="Catégories de vidéos"></div>
-    <div class="video-feature" id="videoFeature"></div>
-    <div class="grid grid-3" id="vidGrid"></div>
-    <div class="empty-state card center" id="videoEmpty" hidden>
-      <h3>Aucune vidéo trouvée</h3>
-      <p>Essaie un autre mot-clé ou une autre catégorie.</p>
+    <div class="video-results" id="videoPanel" role="tabpanel" tabindex="0" aria-labelledby="videoTab0">
+      <div class="video-feature" id="videoFeature"></div>
+      <div class="grid grid-3" id="vidGrid"></div>
+      <div class="empty-state card center" id="videoEmpty" hidden>
+        <h3>Aucune vidéo trouvée</h3>
+        <p>Essaie un autre mot-clé ou une autre catégorie.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -133,7 +135,7 @@
       if (lastTrigger && typeof lastTrigger.focus === 'function') lastTrigger.focus();
     }
     tabs.innerHTML = cats.map(function(c, i) {
-      return '<button class="tab-btn' + (i === 0 ? ' active' : '') + '" role="tab" aria-selected="' + (i === 0 ? 'true' : 'false') + '" data-c="' + esc(c) + '">' + esc(c) + '</button>';
+      return '<button type="button" id="videoTab' + i + '" class="tab-btn' + (i === 0 ? ' active' : '') + '" role="tab" aria-controls="videoPanel" aria-selected="' + (i === 0 ? 'true' : 'false') + '" tabindex="' + (i === 0 ? '0' : '-1') + '" data-c="' + esc(c) + '">' + esc(c) + '</button>';
     }).join('');
     tabs.addEventListener('click', function(e) {
       var b = e.target.closest('.tab-btn');
@@ -143,8 +145,20 @@
         var on = x === b;
         x.classList.toggle('active', on);
         x.setAttribute('aria-selected', on ? 'true' : 'false');
+        x.tabIndex = on ? 0 : -1;
       });
+      document.getElementById('videoPanel').setAttribute('aria-labelledby', b.id);
       render();
+    });
+    tabs.addEventListener('keydown', function(e) {
+      var current = e.target.closest('[role=tab]'); if (!current) return;
+      var buttons = Array.from(tabs.querySelectorAll('[role=tab]'));
+      var i = buttons.indexOf(current), next = null;
+      if (e.key === 'ArrowRight') next = buttons[(i + 1) % buttons.length];
+      else if (e.key === 'ArrowLeft') next = buttons[(i - 1 + buttons.length) % buttons.length];
+      else if (e.key === 'Home') next = buttons[0];
+      else if (e.key === 'End') next = buttons[buttons.length - 1];
+      if (next) { e.preventDefault(); next.focus(); next.click(); }
     });
     document.getElementById('videoSearch').addEventListener('input', function() {
       search = this.value.trim().toLowerCase();
@@ -160,7 +174,20 @@
       if (e.target.closest('[data-video-close]')) closeVideo();
     });
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && !modal.hidden) closeVideo();
+      if (modal.hidden) return;
+      if (e.key === 'Escape') { closeVideo(); return; }
+      if (e.key === 'Tab') {
+        var focusables = Array.from(modal.querySelectorAll('button:not([disabled]), a[href], iframe, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (!focusables.length) { e.preventDefault(); return; }
+        var first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    document.addEventListener('focusin', function(e) {
+      if (!modal.hidden && !modal.contains(e.target)) {
+        var close = modal.querySelector('.video-modal-close'); if (close) close.focus();
+      }
     });
     render();
   })();

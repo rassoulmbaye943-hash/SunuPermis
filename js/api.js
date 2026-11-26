@@ -75,7 +75,7 @@
         try { data = JSON.parse(xhr.responseText || 'null'); } catch (e) { data = null; }
         if (xhr.status === 401 && data && data.erreur) {
           // Session expirée : nettoyage côté client.
-          try { localStorage.removeItem('sp_session'); localStorage.removeItem('sp_user'); } catch (e) {}
+          clearSession();
           dispatch('authchange', false);
         }
         resolve({ ok: xhr.status >= 200 && xhr.status < 300, status: xhr.status, data: data });
@@ -122,6 +122,16 @@
     return apiPost('api/users/login', { email: email, password: password })
       .then(function (r) {
         if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Erreur de connexion.');
+        saveSession(r.data.token, r.data.user);
+        dispatch('authchange', true);
+        return r.data.user;
+      });
+  }
+
+  function adminLogin(email, password) {
+    return apiPost('api/admin/login', { email: email, password: password })
+      .then(function (r) {
+        if (!r.ok) return Promise.reject(r.data && r.data.erreur ? r.data.erreur : 'Erreur de connexion administrateur.');
         saveSession(r.data.token, r.data.user);
         dispatch('authchange', true);
         return r.data.user;
@@ -203,6 +213,10 @@
   /* ------------------------- Admin ------------------------- */
   function adminStats() { return apiGet('api/admin/stats'); }
   function adminUsers() { return apiGet('api/admin/users'); }
+  function adminQuestions(options) {
+    var limit = options && Number(options.limit);
+    return apiGet('api/admin/questions' + (limit > 0 ? '?limit=' + encodeURIComponent(Math.min(limit, 200)) : ''));
+  }
   function adminAddQuestion(body) { return apiPost('api/admin/questions', body); }
   function adminDeleteQuestion(id) { return apiDelete('api/admin/questions/' + encodeURIComponent(id)); }
 
@@ -268,10 +282,10 @@
 
   window.__SP_API = {
     cfg: cfg, isOnline: isOnline, online: function () { return cfg.online; },
-    login: login, register: register, logout: logout, me: me,
+    login: login, adminLogin: adminLogin, register: register, logout: logout, me: me,
     fetchProgress: fetchProgress, saveProgress: saveProgress, resetProgress: resetProgress,
     updateProfile: updateProfile, changePassword: changePassword, deleteAccount: deleteAccount,
-    adminStats: adminStats, adminUsers: adminUsers, adminAddQuestion: adminAddQuestion,
+    adminStats: adminStats, adminUsers: adminUsers, adminQuestions: adminQuestions, adminAddQuestion: adminAddQuestion,
     adminDeleteQuestion: adminDeleteQuestion,
     escapeHtml: escapeHtml, on: on, dispatch: dispatch
   };

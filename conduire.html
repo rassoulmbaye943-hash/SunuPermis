@@ -31,27 +31,27 @@
 
 <section class="section">
   <div class="container">
-    <div class="learning-roadmap" aria-label="Progression du parcours"><span class="roadmap-dot active">1</span><span>Découvrir</span><i></i><span class="roadmap-dot">2</span><span>Démarrer</span><i></i><span class="roadmap-dot">3</span><span>Embrayage</span><i></i><span class="roadmap-dot">4</span><span>Côte</span><i></i><span class="roadmap-dot">5</span><span>Vitesses</span></div>
+    <div class="learning-roadmap" role="group" aria-label="Progression du parcours"><span class="roadmap-dot active">1</span><span>Découvrir</span><i></i><span class="roadmap-dot">2</span><span>Démarrer</span><i></i><span class="roadmap-dot">3</span><span>Embrayage</span><i></i><span class="roadmap-dot">4</span><span>Côte</span><i></i><span class="roadmap-dot">5</span><span>Vitesses</span></div>
     <div class="tabs" id="drivingTabs" role="tablist" aria-label="Étapes pour apprendre à conduire">
-      <button class="tab-btn active" role="tab" aria-selected="true" data-t="vehicule">1. Découvrir la voiture</button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-t="demarrer">2. Démarrer</button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-t="caler">3. Éviter de caler</button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-t="cote">4. Démarrage en côte</button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-t="vitesses">5. Changement de vitesses</button>
+      <button type="button" id="tab-vehicule" class="tab-btn active" role="tab" aria-controls="panel-vehicule" aria-selected="true" tabindex="0" data-t="vehicule">1. Découvrir la voiture</button>
+      <button type="button" id="tab-demarrer" class="tab-btn" role="tab" aria-controls="panel-demarrer" aria-selected="false" tabindex="-1" data-t="demarrer">2. Démarrer</button>
+      <button type="button" id="tab-caler" class="tab-btn" role="tab" aria-controls="panel-caler" aria-selected="false" tabindex="-1" data-t="caler">3. Éviter de caler</button>
+      <button type="button" id="tab-cote" class="tab-btn" role="tab" aria-controls="panel-cote" aria-selected="false" tabindex="-1" data-t="cote">4. Démarrage en côte</button>
+      <button type="button" id="tab-vitesses" class="tab-btn" role="tab" aria-controls="panel-vitesses" aria-selected="false" tabindex="-1" data-t="vitesses">5. Changement de vitesses</button>
     </div>
 
     <!-- 1. VEHICULE -->
-    <div class="drv-panel" id="panel-vehicule">
+    <div class="drv-panel" id="panel-vehicule" role="tabpanel" tabindex="0" aria-labelledby="tab-vehicule">
       <div class="grid grid-2" style="align-items:center;">
         <svg viewBox="0 0 400 260" style="background:var(--surface-2);border-radius:8px;">
           <rect x="40" y="60" width="320" height="140" rx="16" fill="#DFDAC7"/>
-          <g class="carpart" data-part="volant" style="cursor:pointer;"><circle cx="120" cy="130" r="30" fill="none" stroke="#10332B" stroke-width="8"/><circle cx="120" cy="130" r="6" fill="#10332B"/></g>
-          <g class="carpart" data-part="tableau" style="cursor:pointer;"><rect x="170" y="90" width="70" height="30" rx="4" fill="#256A59"/></g>
-          <g class="carpart" data-part="levier" style="cursor:pointer;"><rect x="150" y="150" width="10" height="34" fill="#16201C"/><circle cx="155" cy="150" r="8" fill="#E0A639"/></g>
-          <g class="carpart" data-part="retro" style="cursor:pointer;"><rect x="255" y="70" width="26" height="10" rx="3" fill="#2E7DA6"/></g>
-          <g class="carpart" data-part="clignotant" style="cursor:pointer;"><rect x="90" y="105" width="8" height="18" rx="2" fill="#E0A639"/></g>
-          <g class="carpart" data-part="essuie" style="cursor:pointer;"><line x1="200" y1="66" x2="230" y2="80" stroke="#16201C" stroke-width="4"/></g>
-          <g class="carpart" data-part="frein" style="cursor:pointer;"><rect x="290" y="150" width="10" height="34" fill="#9E3823"/></g>
+          <g class="carpart" data-part="volant" tabindex="0" role="button" aria-label="Volant" style="cursor:pointer;"><circle cx="120" cy="130" r="30" fill="none" stroke="#10332B" stroke-width="8"/><circle cx="120" cy="130" r="6" fill="#10332B"/></g>
+          <g class="carpart" data-part="tableau" tabindex="0" role="button" aria-label="Tableau de bord" style="cursor:pointer;"><rect x="170" y="90" width="70" height="30" rx="4" fill="#256A59"/></g>
+          <g class="carpart" data-part="levier" tabindex="0" role="button" aria-label="Levier de vitesses" style="cursor:pointer;"><rect x="150" y="150" width="10" height="34" fill="#16201C"/><circle cx="155" cy="150" r="8" fill="#E0A639"/></g>
+          <g class="carpart" data-part="retro" tabindex="0" role="button" aria-label="Rétroviseur" style="cursor:pointer;"><rect x="255" y="70" width="26" height="10" rx="3" fill="#2E7DA6"/></g>
+          <g class="carpart" data-part="clignotant" tabindex="0" role="button" aria-label="Clignotant" style="cursor:pointer;"><rect x="90" y="105" width="8" height="18" rx="2" fill="#E0A639"/></g>
+          <g class="carpart" data-part="essuie" tabindex="0" role="button" aria-label="Essuie-glaces" style="cursor:pointer;"><line x1="200" y1="66" x2="230" y2="80" stroke="#16201C" stroke-width="4"/></g>
+          <g class="carpart" data-part="frein" tabindex="0" role="button" aria-label="Pédale de frein" style="cursor:pointer;"><rect x="290" y="150" width="10" height="34" fill="#9E3823"/></g>
           <text x="200" y="230" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" fill="var(--text-soft)">Clique sur un élément pour l’explication</text>
         </svg>
         <div class="card" id="partInfo">
@@ -62,7 +62,7 @@
     </div>
 
     <!-- 2. DEMARRER -->
-    <div class="drv-panel" id="panel-demarrer" style="display:none;">
+    <div class="drv-panel" id="panel-demarrer" role="tabpanel" tabindex="0" aria-labelledby="tab-demarrer" style="display:none;">
       <div class="grid grid-2">
         <div class="card">
           <h3>Les 11 étapes pour démarrer en toute sécurité</h3>
@@ -84,9 +84,9 @@
           <h3>Les trois pédales</h3>
           <p>Clique sur chaque pédale pour voir quel pied intervient et à quel moment.</p>
           <div class="pedal-board">
-            <div class="pedal embrayage" data-p="embrayage">EMBRAYAGE</div>
-            <div class="pedal frein" data-p="frein">FREIN</div>
-            <div class="pedal accelerateur" data-p="accelerateur">ACCÉL.</div>
+            <button type="button" class="pedal embrayage" data-p="embrayage" aria-pressed="false">EMBRAYAGE</button>
+            <button type="button" class="pedal frein" data-p="frein" aria-pressed="false">FREIN</button>
+            <button type="button" class="pedal accelerateur" data-p="accelerateur" aria-pressed="false">ACCÉL.</button>
           </div>
           <p id="pedalInfo" style="min-height:44px;">Embrayage et frein s’actionnent avec le pied gauche pour l’embrayage, et le pied droit alterne entre frein et accélérateur.</p>
         </div>
@@ -94,7 +94,7 @@
     </div>
 
     <!-- 3. CALER -->
-    <div class="drv-panel" id="panel-caler" style="display:none;">
+    <div class="drv-panel" id="panel-caler" role="tabpanel" tabindex="0" aria-labelledby="tab-caler" style="display:none;">
       <div class="grid grid-2">
         <div class="card">
           <h3>Comment éviter de caler</h3>
@@ -109,14 +109,14 @@
         <div class="card">
           <h3>Exercice : trouve le point de patinage</h3>
           <p>Fais glisser le curseur lentement vers la droite pour simuler le relâchement de l’embrayage. Trouve la zone verte sans caler ni accélérer trop vite.</p>
-          <input type="range" min="0" max="100" value="0" id="clutchSlider" style="width:100%;">
+          <div class="field"><label for="clutchSlider">Relâchement de l’embrayage</label><input type="range" min="0" max="100" value="0" id="clutchSlider" style="width:100%;"></div>
           <p id="clutchResult" style="margin-top:12px;font-weight:600;">Relâche doucement…</p>
         </div>
       </div>
     </div>
 
     <!-- 4. COTE -->
-    <div class="drv-panel" id="panel-cote" style="display:none;">
+    <div class="drv-panel" id="panel-cote" role="tabpanel" tabindex="0" aria-labelledby="tab-cote" style="display:none;">
       <div class="grid grid-2">
         <div class="card">
           <h3>Démarrage en côte, étape par étape</h3>
@@ -139,7 +139,7 @@
     </div>
 
     <!-- 5. VITESSES -->
-    <div class="drv-panel" id="panel-vitesses" style="display:none;">
+    <div class="drv-panel" id="panel-vitesses" role="tabpanel" tabindex="0" aria-labelledby="tab-vitesses" style="display:none;">
       <div class="grid grid-2">
         <div class="card center">
           <h3>Schéma du levier de vitesses</h3>
@@ -174,13 +174,28 @@
 <script>
 document.getElementById('drivingTabs').addEventListener('click', function(e){
   var b = e.target.closest('.tab-btn'); if(!b) return;
-  document.querySelectorAll('#drivingTabs .tab-btn').forEach(function(x){x.classList.remove('active');});
-  b.classList.add('active');
-  document.querySelectorAll('#drivingTabs .tab-btn').forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false');});
-  document.querySelectorAll('.roadmap-dot').forEach(function(x,i){x.classList.toggle('active',i===Array.from(document.querySelectorAll('#drivingTabs .tab-btn')).indexOf(b));});
+  var buttons = Array.from(document.querySelectorAll('#drivingTabs .tab-btn'));
+  buttons.forEach(function(x){
+    var active = x === b;
+    x.classList.toggle('active', active);
+    x.setAttribute('aria-selected', active ? 'true' : 'false');
+    x.tabIndex = active ? 0 : -1;
+  });
+  document.querySelectorAll('.roadmap-dot').forEach(function(x,i){x.classList.toggle('active',i===buttons.indexOf(b));});
   document.querySelectorAll('.drv-panel').forEach(function(p){p.style.display='none';});
-  document.getElementById('panel-'+b.dataset.t).style.display='block';
+  var panel = document.getElementById('panel-'+b.dataset.t);
+  if (panel) panel.style.display='block';
   if(window.SPProgress) SPProgress.markLessonSeen('conduite:'+b.dataset.t);
+});
+document.getElementById('drivingTabs').addEventListener('keydown', function(e){
+  var current = e.target.closest('[role=tab]'); if (!current) return;
+  var buttons = Array.from(document.querySelectorAll('#drivingTabs [role=tab]'));
+  var i = buttons.indexOf(current), next = null;
+  if (e.key === 'ArrowRight') next = buttons[(i + 1) % buttons.length];
+  else if (e.key === 'ArrowLeft') next = buttons[(i - 1 + buttons.length) % buttons.length];
+  else if (e.key === 'Home') next = buttons[0];
+  else if (e.key === 'End') next = buttons[buttons.length - 1];
+  if (next) { e.preventDefault(); next.focus(); next.click(); }
 });
 
 var PARTS = {
@@ -193,16 +208,22 @@ var PARTS = {
   frein:'La pédale de frein ralentit ou immobilise le véhicule, actionnée du pied droit.'
 };
 document.querySelectorAll('.carpart').forEach(function(el){
-  el.addEventListener('click', function(){
+  function showPart() {
     var key = el.dataset.part;
     document.getElementById('partInfo').innerHTML = '<h3>'+key.charAt(0).toUpperCase()+key.slice(1)+'</h3><p>'+(PARTS[key]||'Élément du véhicule.')+'</p>';
+  }
+  el.addEventListener('click', showPart);
+  el.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPart(); }
   });
 });
 
 document.querySelectorAll('.pedal').forEach(function(p){
   p.addEventListener('click', function(){
-    document.querySelectorAll('.pedal').forEach(function(x){x.classList.remove('active');});
-    p.classList.add('active');
+    document.querySelectorAll('.pedal').forEach(function(x){
+      x.classList.toggle('active', x === p);
+      x.setAttribute('aria-pressed', x === p ? 'true' : 'false');
+    });
     var msgs = {
       embrayage:'Pied GAUCHE — enfoncé pour changer de vitesse ou éviter de caler, relâché progressivement au démarrage.',
       frein:'Pied DROIT — pour ralentir ou immobiliser le véhicule.',
@@ -250,6 +271,7 @@ document.getElementById('hillSteps').addEventListener('click', function(e){
 });
 </script>
 <script src="js/progress.js"></script>
+<script src="js/progress-sync.js"></script>
 </main>
 <div id="sp-footer-placeholder"></div>
     <script>

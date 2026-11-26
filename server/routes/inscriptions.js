@@ -19,6 +19,7 @@ const TYPES_PERMIS = ['A', 'B', 'C', 'D', 'E'];
 
 function createRoutes(repo) {
   const r = express.Router();
+  const requireAuth = authUser(repo);
 
   /* POST /api/inscriptions */
   r.post('/', (_req, res) => {
@@ -65,7 +66,7 @@ function createRoutes(repo) {
   });
 
   /* GET /api/inscriptions  (admin, protégé) */
-  r.get('/', authUser, authAdmin, (_req, res) => {
+  r.get('/', requireAuth, authAdmin, (_req, res) => {
     try {
       let liste = (repo.inscriptions || []).slice();
       if (_req.query.statut) {
@@ -80,7 +81,7 @@ function createRoutes(repo) {
   });
 
   /* PUT /api/inscriptions/:id  (admin, protégé) */
-  r.put('/:id', authUser, authAdmin, (_req, res) => {
+  r.put('/:id', requireAuth, authAdmin, (_req, res) => {
     try {
       const { statut } = _req.body || {};
       if (!STATUTS.includes(statut)) {

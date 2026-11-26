@@ -1,76 +1,57 @@
 # SunuPermis
 
-Plateforme pédagogique consacrée au code de la route sénégalais. Le projet contient le site statique, les ressources pédagogiques et deux implémentations de serveur conservées pour compatibilité.
+Plateforme pédagogique consacrée au code de la route sénégalais. Le dépôt contient le site statique, les ressources pédagogiques, une API Express et des tests autonomes.
 
-## Prérequis
+## Prérequis et installation
 
 - Node.js 18 ou supérieur
 - npm
-
-## Installation
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-Avant de démarrer, ouvre `.env` et remplace les valeurs de démonstration :
+Configure ensuite les variables dans `.env` :
 
-- `JWT_SECRET` : secret aléatoire d'au moins 32 caractères (commande proposée dans `.env.example`).
-- `ADMIN_PASSWORD` : mot de passe administrateur fort d'au moins 12 caractères.
-- `GEMINI_API_KEY` : clé Gemini privée, facultative si tu n'utilises pas Raoul.
-- `CORS_ORIGINS` : liste des domaines autorisés, séparés par des virgules.
+- `JWT_SECRET` : secret aléatoire d’au moins 32 caractères.
+- `ADMIN_EMAIL` et `ADMIN_PASSWORD` : identifiants du compte administrateur initial.
+- `GEMINI_API_KEY` : facultative, nécessaire à l’assistant Raoul.
+- `CORS_ORIGINS` : domaines autorisés, séparés par des virgules.
 
-Ne publie jamais `.env`, une clé API, `server/data/` ou un fichier `secret.key`.
+Ne publie jamais `.env`, une clé API ou les données contenues dans `server/data/`.
 
-## Démarrer le backend principal
+## Lancer le site et l’API
 
 ```bash
 npm start
 ```
 
-Le serveur Express écoute sur `http://localhost:3000`, sert les pages du site et expose :
+Le serveur écoute sur `http://localhost:3000`, sert le site et expose les routes `/api`. Le premier compte administrateur est créé lors de sa première connexion réussie à `/api/admin/login`, avec les identifiants définis dans `.env`.
 
-| Méthode | Route | Fonction |
-|---|---|---|
-| GET | `/api/health` | Vérifier que le serveur répond |
-| POST | `/api/raoul` | Interroger l'assistant Raoul (clé côté serveur) |
-| POST | `/api/inscriptions` | Enregistrer une demande d'inscription |
-| GET | `/api/inscriptions` | Lister les demandes (admin) |
-| PUT | `/api/inscriptions/:id` | Modifier le statut (admin) |
-| POST | `/api/contact` | Envoyer un message |
-| GET | `/api/contact` | Lire les messages (admin) |
-| POST | `/api/admin/login` | Connexion administrateur |
+Pour le développement avec redémarrage automatique :
 
-Les données de ces formulaires sont stockées dans `server/data/db.json`, créé automatiquement au premier enregistrement.
+```bash
+npm run dev
+```
 
-## Vérification du code
+Les données sont stockées dans `server/data/db.json` (créé au premier enregistrement). Le stockage JSON est adapté au développement et à un petit déploiement, mais pas à une forte charge concurrente.
+
+## Vérification
 
 ```bash
 npm run check
+npm test
 ```
 
-Cette commande vérifie la syntaxe de tous les fichiers JavaScript du projet.
+`npm run check` vérifie la syntaxe JavaScript du dépôt. `npm test` exécute une suite d’intégration isolée sur un port temporaire et une base temporaire ; elle ne nécessite ni serveur déjà lancé, ni compte ou données de l’utilisateur.
 
-## Serveur historique des comptes et de la progression
+## Sécurité et production
 
-Le fichier `server/server.js` contient une autre API Node.js native, conservée pour les fonctions de comptes, profils, progression, quiz et administration pédagogique (`/api/users`, `/api/me`, `/api/progress`, etc.). Elle n'est pas le point d'entrée de `npm start`.
+- Les mots de passe sont hachés avec bcrypt et les jetons JWT expirent.
+- L’adresse configurée dans `ADMIN_EMAIL` est réservée et ne peut pas être inscrite par le formulaire public.
+- Les permissions sont relues depuis le repository à chaque requête protégée : suppression ou rétrogradation d’un compte révoque aussi ses anciens jetons.
+- Les origines CORS et les limites de requêtes sont configurables côté serveur.
+- Utilise HTTPS, une base de données robuste, des sauvegardes et un gestionnaire de secrets pour une mise en production.
 
-Pour la lancer séparément sur le port 4000 :
-
-```bash
-npm run start:legacy
-```
-
-Ne lance pas les deux serveurs sur le même port. Les deux API n'utilisent pas le même schéma de données ; une unification complète des comptes, des inscriptions et de l'administration reste à faire avant un déploiement public.
-
-## Sécurité
-
-- Les secrets sont lus depuis `.env`, jamais depuis le frontend.
-- Les valeurs de démonstration ne sont plus utilisées comme secrets par défaut.
-- Les routes d'administration vérifient un JWT signé en HS256 et un rôle administrateur.
-- Les requêtes publiques sont limitées par adresse IP.
-- Les origines CORS sont configurées explicitement.
-- Les fichiers du dossier `server/` ne sont pas servis par le serveur statique.
-
-Pour une mise en production, utilise HTTPS, une vraie base de données, des sauvegardes et un gestionnaire de secrets. Le stockage JSON convient à un petit projet local, pas à une forte charge multi-utilisateur.
+Le contenu pédagogique est informatif : les règles applicables doivent être vérifiées auprès des organismes compétents et d’une auto-école agréée.
