@@ -32,7 +32,6 @@
 
   function isOnline() {
     if (!navigator.onLine) return Promise.resolve(false);
-    var t0 = performance.now();
     return new Promise(function (resolve) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', cfg.base + 'api/health', true);
@@ -44,7 +43,6 @@
       xhr.onerror = function () { resolve(false); };
       xhr.ontimeout = function () { resolve(false); };
       xhr.send(null);
-      setTimeout(function () { resolve(false); }, 600);
     });
   }
 
