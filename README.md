@@ -16,10 +16,15 @@ Configure ensuite les variables dans `.env` :
 
 - `JWT_SECRET` : secret aléatoire d’au moins 32 caractères.
 - `ADMIN_EMAIL` et `ADMIN_PASSWORD` : identifiants du compte administrateur initial.
-- `GEMINI_API_KEY` : facultative, nécessaire à l’assistant Raoul.
+- `NVIDIA_API_KEY` : facultative, nécessaire à l’assistant Raoul. Garde-la dans `.env` en local ou dans les variables d’environnement du serveur (par exemple Vercel), jamais dans le navigateur.
+- `NVIDIA_MODEL` : modèle NVIDIA utilisé par Raoul; par défaut `nvidia/nemotron-3.5-lightning-30b-a3b`.
+- `NVIDIA_TIMEOUT` : délai maximal de l’appel NVIDIA en millisecondes (20 000 par défaut).
 - `CORS_ORIGINS` : domaines autorisés, séparés par des virgules.
 
 Ne publie jamais `.env`, une clé API ou les données contenues dans `server/data/`.
+
+Raoul utilise l’API NVIDIA `https://integrate.api.nvidia.com/v1/chat/completions`. Configure `NVIDIA_API_KEY` côté serveur avant de l’utiliser; aucun appel externe n’est requis pour lancer les tests.
+Si tu utilisais Gemini auparavant, remplace `GEMINI_API_KEY` par `NVIDIA_API_KEY` dans ta configuration locale ou celle de l’hébergeur. L’ancienne variable Gemini n’est plus utilisée par le serveur.
 
 ## Lancer le site et l’API
 

@@ -2,7 +2,7 @@
  * Discuter avec Raoul : ouvre un panneau de discussion.
  * L'historique est conservé dans localStorage.
  * Les appels vers l'IA passent uniquement par le backend (/api/raoul),
- * qui garde la clé GEMINI_API_KEY hors du frontend.
+ * qui garde la clé NVIDIA_API_KEY hors du frontend.
  */
 (function () {
   'use strict';

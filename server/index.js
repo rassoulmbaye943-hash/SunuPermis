@@ -229,8 +229,8 @@ if (require.main === module) {
     if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
       console.warn('⚠️  JWT_SECRET absent ou trop court : configure le fichier .env.');
     }
-    if (!process.env.GEMINI_API_KEY) {
-      console.warn('⚠️  GEMINI_API_KEY manquante : Raoul sera indisponible.');
+    if (!process.env.NVIDIA_API_KEY) {
+      console.warn('⚠️  NVIDIA_API_KEY manquante : Raoul sera indisponible.');
     }
   });
 }

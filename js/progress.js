@@ -73,7 +73,7 @@ function categoryPercent(cat){
     return Math.min(100, Math.round((keys.length/total)*100));
   }
 
-  function reset(){ localStorage.removeItem(KEY); SPProgress._syncWithServer && SPProgress._syncWithServer().catch(function(){}); }
+  function reset(){ try { localStorage.removeItem(KEY); } catch(e) {} }
 
   return {
     load: load, markLessonSeen: markLessonSeen, addQuizScore: addQuizScore,

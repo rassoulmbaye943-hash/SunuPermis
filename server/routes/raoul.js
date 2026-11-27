@@ -5,11 +5,10 @@
  *
  * POST /api/raoul  { message, historique? }
  *
- * La clé API Gemini est lue UNIQUEMENT depuis les variables d'environnement
- * (GEMINI_API_KEY), jamais depuis le frontend.
+ * La clé API NVIDIA est lue UNIQUEMENT depuis les variables d'environnement
+ * (NVIDIA_API_KEY), jamais depuis le frontend.
  *
- * Architecture : service d'IA abstrait (server/lib/ai-provider.js) pour
- * éviter de coupler l'application directement à Gemini.
+ * NVIDIA expose une API de chat compatible avec le format OpenAI.
  */
 const express = require('express');
 const fs = require('fs');
@@ -19,8 +18,11 @@ function createRoutes(repo) {
   const router = express.Router();
   const KNOWLEDGE_FILE = path.join(__dirname, '..', 'data', 'raoul-knowledge.md');
 
-  const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-  const GEMINI_TIMEOUT = Number.parseInt(process.env.GEMINI_TIMEOUT || '20000', 10);
+  const NVIDIA_MODEL = process.env.NVIDIA_MODEL || 'nvidia/nemotron-3.5-lightning-30b-a3b';
+  const configuredTimeout = Number.parseInt(process.env.NVIDIA_TIMEOUT || '20000', 10);
+  const NVIDIA_TIMEOUT = Number.isSafeInteger(configuredTimeout) && configuredTimeout > 0
+    ? configuredTimeout
+    : 20000;
   const MAX_HISTORY = Number.parseInt(process.env.RAOUL_MAX_HISTORY || '12', 10);
 
   let knowledge = '';
@@ -64,16 +66,18 @@ function createRoutes(repo) {
     for (const h of historique || []) {
       if (!h || !h.text) continue;
       contenus.push({
-        role: h.role === 'model' ? 'model' : 'user',
-        parts: [{ text: String(h.text) }]
+        role: ['model', 'assistant', 'raoul'].includes(h.role) ? 'assistant' : 'user',
+        content: String(h.text)
       });
     }
     return contenus;
   }
 
   function extraireReponse(data) {
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) return '';
-    return data.candidates[0].content.parts.map((p) => p.text || '').join('').trim();
+    const contenu = data && data.choices && data.choices[0] && data.choices[0].message
+      ? data.choices[0].message.content
+      : '';
+    return typeof contenu === 'string' ? contenu.trim() : '';
   }
 
   /**
@@ -87,11 +91,11 @@ function createRoutes(repo) {
         return res.status(400).json({ erreur: "Merci d'écrire un message." });
       }
 
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = String(process.env.NVIDIA_API_KEY || '').trim();
       if (!apiKey) {
         return res.status(503).json({
           erreur:
-            'Raoul n est pas encore configure : la cle API Gemini (GEMINI_API_KEY) est manquante cote serveur.'
+            'Raoul n’est pas encore configuré : la clé API NVIDIA (NVIDIA_API_KEY) est manquante côté serveur.'
         });
       }
 
@@ -116,9 +120,9 @@ function createRoutes(repo) {
       const safeHistory = Array.isArray(historique) ? historique.slice(-MAX_HISTORY) : [];
       const contenus = historiqueVersContenus(safeHistory).map((item) => ({
         ...item,
-        parts: [{ text: item.parts[0].text.slice(0, 2000) }]
+        content: item.content.slice(0, 2000)
       }));
-      contenus.push({ role: 'user', parts: [{ text: message.trim() }] });
+      contenus.push({ role: 'user', content: message.trim() });
 
       const systemPrompt = `
 Tu t'appelles Raoul, l'assistant officiel de SunuPermis, une plateforme de preparation au permis de conduire au Senegal.
@@ -139,34 +143,28 @@ Regles importantes :
 Base de connaissances SunuPermis :${contexteTexte}
       `.trim();
 
-      const url =
-        'https://generativelanguage.googleapis.com/v1beta/models/' +
-        GEMINI_MODEL +
-        ':generateContent?key=' +
-        encodeURIComponent(apiKey);
-
-      const response = await fetch(url, {
+      const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(GEMINI_TIMEOUT),
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        signal: AbortSignal.timeout(NVIDIA_TIMEOUT),
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: contenus,
-          generationConfig: {
-            temperature: 0.7,
-            topP: 0.95,
-            maxOutputTokens: 800
-          }
+          model: NVIDIA_MODEL,
+          messages: [{ role: 'system', content: systemPrompt }, ...contenus],
+          stream: false,
+          temperature: 0.7,
+          max_tokens: 800
         })
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        const detail = data && data.error ? data.error.message : `HTTP ${response.status}`;
-        throw new Error(detail);
+        throw new Error(`NVIDIA API HTTP ${response.status}`);
       }
 
+      const data = await response.json();
       const reponse = extraireReponse(data);
 
       if (!reponse) {
@@ -175,7 +173,7 @@ Base de connaissances SunuPermis :${contexteTexte}
 
       return res.json({ reponse, references });
     } catch (err) {
-      console.error('Erreur POST /api/raoul :', err.message);
+      console.error('Erreur POST /api/raoul :', err.name || 'Erreur inconnue');
       return res.status(502).json({
         erreur:
           'Raoul est momentanement indisponible. Reessaie dans quelques instants.'

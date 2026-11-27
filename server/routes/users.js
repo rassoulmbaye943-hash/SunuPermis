@@ -30,6 +30,12 @@ function createRoutes(repo, authLimiter) {
   const { hashPassword, verifyPassword, signToken, getJwtSecret, getTtlSeconds } = authService;
   const requireAuth = authUser(repo);
 
+  class InvalidAuthInputError extends Error {}
+
+  function authUnavailable(res) {
+    return res.status(503).json({ erreur: 'Service d’authentification indisponible. Vérifie la configuration serveur.' });
+  }
+
   /* ---------- Helpers ---------- */
   function publicUser(u) {
     return {
@@ -42,8 +48,8 @@ function createRoutes(repo, authLimiter) {
     };
   }
 
-  function issueToken(user) {
-    return signToken({ sub: user.id, role: user.role || 'user' }, getJwtSecret(), getTtlSeconds());
+  function issueToken(user, jwtSecret) {
+    return signToken({ sub: user.id, role: user.role || 'user' }, jwtSecret, getTtlSeconds());
   }
 
   function requireBody(req, res, next) {
@@ -54,26 +60,26 @@ function createRoutes(repo, authLimiter) {
   }
 
   function cleanText(value, min, max, field) {
-    if (typeof value !== 'string') throw new Error(`${field} requis.`);
+    if (typeof value !== 'string') throw new InvalidAuthInputError(`${field} requis.`);
     const v = value.trim();
-    if (v.length < min) throw new Error(`${field} trop court (${min} caractères minimum).`);
-    if (v.length > max) throw new Error(`${field} trop long (${max} caractères maximum).`);
+    if (v.length < min) throw new InvalidAuthInputError(`${field} trop court (${min} caractères minimum).`);
+    if (v.length > max) throw new InvalidAuthInputError(`${field} trop long (${max} caractères maximum).`);
     return v;
   }
 
   function cleanEmail(value) {
-    if (typeof value !== 'string') throw new Error('E-mail requis.');
+    if (typeof value !== 'string') throw new InvalidAuthInputError('E-mail requis.');
     const v = value.trim().toLowerCase();
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRe.test(v)) throw new Error('E-mail invalide.');
+    if (!emailRe.test(v)) throw new InvalidAuthInputError('E-mail invalide.');
     return v;
   }
 
   function cleanPassword(value) {
-    if (typeof value !== 'string') throw new Error('Mot de passe requis.');
+    if (typeof value !== 'string') throw new InvalidAuthInputError('Mot de passe requis.');
     const v = value;
-    if (v.length < 8) throw new Error('Le mot de passe doit contenir au moins 8 caractères.');
-    if (v.length > 128) throw new Error('Mot de passe trop long.');
+    if (v.length < 8) throw new InvalidAuthInputError('Le mot de passe doit contenir au moins 8 caractères.');
+    if (v.length > 128) throw new InvalidAuthInputError('Mot de passe trop long.');
     return v;
   }
 
@@ -89,6 +95,9 @@ function createRoutes(repo, authLimiter) {
       const email = cleanEmail(req.body.email);
       const password = cleanPassword(req.body.password);
       const objective = cleanObjective(req.body.objective);
+
+      let jwtSecret;
+      try { jwtSecret = getJwtSecret(); } catch (_error) { return authUnavailable(res); }
 
       const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
       if (adminEmail && email === adminEmail) {
@@ -113,21 +122,31 @@ function createRoutes(repo, authLimiter) {
         createdAt: new Date().toISOString()
       };
 
+      // Génère le jeton avant la persistance afin qu'une configuration JWT invalide
+      // ne laisse pas un compte créé alors que l'inscription a échoué côté client.
+      const token = issueToken(user, jwtSecret);
+
       await repo.addUser(user);
 
       return res.status(201).json({
-        token: issueToken(user),
+        token,
         user: publicUser(user),
         message: 'Compte créé avec succès.'
       });
     } catch (err) {
-      return res.status(400).json({ erreur: err.message || 'Impossible de créer le compte.' });
+      if (err instanceof InvalidAuthInputError) {
+        return res.status(400).json({ erreur: err.message || 'Impossible de créer le compte.' });
+      }
+      return authUnavailable(res);
     }
   });
 
   /* ---------- Connexion ---------- */
   router.post('/users/login', authLimiter, requireBody, async (req, res) => {
     try {
+      let jwtSecret;
+      try { jwtSecret = getJwtSecret(); } catch (_error) { return authUnavailable(res); }
+
       const email = cleanEmail(req.body.email);
       const password = typeof req.body.password === 'string' ? req.body.password : '';
 
@@ -143,12 +162,15 @@ function createRoutes(repo, authLimiter) {
 
       const tokenUser = Object.assign({}, user, { role: user.role || 'user' });
       return res.status(200).json({
-        token: issueToken(tokenUser),
+        token: issueToken(tokenUser, jwtSecret),
         user: publicUser(tokenUser),
         message: 'Connexion réussie.'
       });
     } catch (err) {
-      return res.status(401).json({ erreur: 'E-mail ou mot de passe incorrect.' });
+      if (err instanceof InvalidAuthInputError) {
+        return res.status(401).json({ erreur: 'E-mail ou mot de passe incorrect.' });
+      }
+      return authUnavailable(res);
     }
   });
 
